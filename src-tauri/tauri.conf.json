@@ -41,6 +41,9 @@
 		"macOSPrivateApi": true
 	},
 	"plugins": {
+		"http": {
+			"scope": ["*"]
+		},
 		"shell": {
 			"open": true
 		}

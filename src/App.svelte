@@ -6,8 +6,10 @@
   import { Label } from '$lib/components/ui/label'
   import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
-  import Paragraph from '$lib/components/ui/typography/paragraph.svelte'
+  import { getAlphaAdvantage } from '$lib/data'
   import { getCurrent } from '@tauri-apps/api/window'
+  import { fetch } from '@tauri-apps/plugin-http'
+  import dayjs from 'dayjs'
   import { onMount } from 'svelte'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
   import Small from './lib/components/ui/typography/small.svelte'
@@ -86,6 +88,43 @@
     apiKey = (await getValue(store, 'api-key')) as string
   })
 
+  let searchData = [
+    {
+      '1. symbol': 'GOOG',
+      '2. name': 'Alphabet Inc - Class C',
+      '3. type': 'Equity',
+      '4. region': 'United States',
+      '5. marketOpen': '09:30',
+      '6. marketClose': '16:00',
+      '7. timezone': 'UTC-04',
+      '8. currency': 'USD',
+      '9. matchScore': '1.0000',
+    },
+    {
+      '1. symbol': 'GOOGL',
+      '2. name': 'Alphabet Inc - Class A',
+      '3. type': 'Equity',
+      '4. region': 'United States',
+      '5. marketOpen': '09:30',
+      '6. marketClose': '16:00',
+      '7. timezone': 'UTC-04',
+      '8. currency': 'USD',
+      '9. matchScore': '0.8889',
+    },
+  ].map(getAlphaAdvantage)
+
+  async function searchTerm() {
+    const response = await fetch(
+      `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${search}&apikey=${apiKey}`,
+      {
+        method: 'GET',
+      },
+    )
+    const json = await response.json()
+    if (!json?.bestMatches) return []
+    searchData = json.bestMatches.map(getAlphaAdvantage)
+    console.log(`🚀 ~ searchTerm ~ searchData:`, searchData)
+  }
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -180,13 +219,27 @@
         <Card.Content class="space-y-2">
           <div class="space-y-1">
             <Label for="search">Search</Label>
-            <Input id="search" bind:value={search} />
+            <div class="flex justify-between gap-2">
+              <Input id="search" bind:value={search} />
+              <Button on:click={searchTerm}>Search</Button>
+            </div>
           </div>
-          <Paragraph>{search}</Paragraph>
+          <div>
+            <ul>
+              {#each searchData as item (item.symbol)}
+                <li>
+                  <span>{item.symbol}</span>
+                  <span>{item.name}</span>
+                  <span>{item.type}</span>
+                  <span>{item.region}</span>
+                  <span>{dayjs(item.timezone).format('YYYY/MM/DD')}</span>
+                  <span>{item.currency}</span>
+                </li>
+              {/each}
+            </ul>
+          </div>
         </Card.Content>
-        <Card.Footer>
-          <Button>Search</Button>
-        </Card.Footer>
+        <Card.Footer></Card.Footer>
       </Card.Root>
     </Tabs.Content>
 
