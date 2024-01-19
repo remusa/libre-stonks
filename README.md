@@ -8,11 +8,12 @@ This template should help get you started developing with Tauri, Svelte and Type
 
 ## TODO
 
-- [ ] Fetch stock data from API.
-- [ ] Fetch in background.
+- [ ] Get stock data from API.
+  - [ ] Fetch in the background.
   - [ ] Customize fetch time.
-- [ ] Sort stocks by name/percentage/price.
+- [ ] Store stocks in database.
 - [ ] Search for a stock.
+- [ ] Sort stocks by name/percentage/price.
 - [ ] Create individual portfolios.
   - [ ] Add current holdings per portfolio.
 - [ ] Implement tray menu.
@@ -21,5 +22,6 @@ This template should help get you started developing with Tauri, Svelte and Type
 - [ ] Use SVG for currency icons.
 - [ ] Create custom app icon.
 - [ ] Alert when price goes above/below threshold.
-- [ ] Add "Settings" screen
-- [x] Restore last screen when reopening tab (use local storage)
+- [x] Add "Settings" screen
+  - [x] Restore last screen when reopening tab (use local storage)
+  - [x] Toggle always on top

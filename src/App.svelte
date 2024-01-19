@@ -4,9 +4,13 @@
   import * as Card from '$lib/components/ui/card'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
+  import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
+  import { getCurrent } from '@tauri-apps/api/window'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
   import Small from './lib/components/ui/typography/small.svelte'
+
+  const appWindow = getCurrent()
 
   type Price = 'increment' | 'decrement' | 'meh'
 
@@ -59,29 +63,38 @@
 
   type Tabs = 'home' | 'search' | 'settings'
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
-
   $: {
     localStorage.setItem('tab', tab)
+  }
+
+  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' ? true : false
+  $: {
+    changeAlwaysOnTop(alwaysOnTop)
+  }
+
+  async function changeAlwaysOnTop(value: boolean) {
+    await appWindow.setAlwaysOnTop(value)
+    localStorage.setItem('always-on-top', alwaysOnTop.toString())
   }
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
   <header>
-    <HeadingH1>Stock tracker</HeadingH1>
+    <HeadingH1>Stonks</HeadingH1>
   </header>
 
-  <Tabs.Root value={tab} class="w-full h-full">
+  <Tabs.Root bind:value={tab} class="w-full h-full">
     <Tabs.List class="grid w-full grid-cols-3">
-      <Tabs.Trigger on:click={() => (tab = 'home')} value="home">Home</Tabs.Trigger>
-      <Tabs.Trigger on:click={() => (tab = 'search')} value="search">Search</Tabs.Trigger>
-      <Tabs.Trigger on:click={() => (tab = 'settings')} value="settings">Settings</Tabs.Trigger>
+      <Tabs.Trigger value="home">Home</Tabs.Trigger>
+      <Tabs.Trigger value="search">Search</Tabs.Trigger>
+      <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="home">
       <Card.Root>
         <Card.Header>
-          <Card.Title>Home</Card.Title>
-          <Card.Description>Portfolio.</Card.Description>
+          <Card.Title>My Stonks</Card.Title>
+          <Card.Description>Default Portfolio.</Card.Description>
         </Card.Header>
         <Card.Content class="space-y-2">
           <div class="w-full flex flex-col gap-2 items-center">
@@ -172,7 +185,12 @@
           <Card.Title>Settings</Card.Title>
           <Card.Description>App settings.</Card.Description>
         </Card.Header>
-        <Card.Content class="space-y-2"></Card.Content>
+        <Card.Content class="space-y-2">
+          <div class="flex items-center space-x-2">
+            <Switch id="always-on-top" class="" bind:checked={alwaysOnTop} />
+            <Label for="always-on-top">Always on top</Label>
+          </div>
+        </Card.Content>
         <Card.Footer></Card.Footer>
       </Card.Root>
     </Tabs.Content>
