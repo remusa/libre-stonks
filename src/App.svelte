@@ -55,7 +55,13 @@
   ]
   let search = ''
   $: {
-    console.log(`🚀 ~ search:`, search)
+  }
+
+  type Tabs = 'home' | 'search' | 'settings'
+  let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
+
+  $: {
+    localStorage.setItem('tab', tab)
   }
 </script>
 
@@ -64,11 +70,11 @@
     <HeadingH1>Stock tracker</HeadingH1>
   </header>
 
-  <Tabs.Root value="home" class="w-full h-full">
+  <Tabs.Root value={tab} class="w-full h-full">
     <Tabs.List class="grid w-full grid-cols-3">
-      <Tabs.Trigger value="home">Home</Tabs.Trigger>
-      <Tabs.Trigger value="search">Search</Tabs.Trigger>
-      <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
+      <Tabs.Trigger on:click={() => (tab = 'home')} value="home">Home</Tabs.Trigger>
+      <Tabs.Trigger on:click={() => (tab = 'search')} value="search">Search</Tabs.Trigger>
+      <Tabs.Trigger on:click={() => (tab = 'settings')} value="settings">Settings</Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="home">
@@ -131,7 +137,14 @@
             </ul>
           </div>
         </Card.Content>
-        <Card.Footer></Card.Footer>
+        <Card.Footer>
+          <Button
+            variant="default"
+            on:click={function () {
+              console.log('updating')
+            }}>Update</Button
+          >
+        </Card.Footer>
       </Card.Root>
     </Tabs.Content>
 

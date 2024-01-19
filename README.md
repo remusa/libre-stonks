@@ -22,3 +22,4 @@ This template should help get you started developing with Tauri, Svelte and Type
 - [ ] Create custom app icon.
 - [ ] Alert when price goes above/below threshold.
 - [ ] Add "Settings" screen
+- [x] Restore last screen when reopening tab (use local storage)
