@@ -29,10 +29,10 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"resizable": true,
+				"resizable": false,
 				"alwaysOnTop": true,
 				"decorations": true,
-				"transparent": true,
+				"transparent": false,
 				"title": "Stonks",
 				"width": 400,
 				"height": 700

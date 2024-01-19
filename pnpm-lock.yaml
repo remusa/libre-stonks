@@ -11,6 +11,9 @@ dependencies:
   '@tauri-apps/plugin-shell':
     specifier: ^2.0.0-alpha.5
     version: 2.0.0-alpha.5
+  '@tauri-apps/plugin-window-state':
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   bits-ui:
     specifier: ^0.14.0
     version: 0.14.0(svelte@4.2.9)
@@ -1026,6 +1029,12 @@ packages:
 
   /@tauri-apps/plugin-shell@2.0.0-alpha.5:
     resolution: {integrity: sha512-iAurwn0z16NLOLaiuk3ETLtoG6x/mgFZo75YYKYLiOg70PYMr4LpcjvNPoIPvokdqWWPa7C/6N3eE9jtcbQiLg==}
+    dependencies:
+      '@tauri-apps/api': 2.0.0-alpha.13
+    dev: false
+
+  /@tauri-apps/plugin-window-state@2.0.0-alpha.5:
+    resolution: {integrity: sha512-51v3nUV9Hanhcw2mqliu8l0KM6oyGutx4o6nOBgOQuDvon2QYhVKfL6g/Lrn0yMHSPrIF4YJNs2daAIK9gpx7A==}
     dependencies:
       '@tauri-apps/api': 2.0.0-alpha.13
     dev: false

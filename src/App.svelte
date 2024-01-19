@@ -67,7 +67,7 @@
     localStorage.setItem('tab', tab)
   }
 
-  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' ? true : false
+  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' ?? true
   $: {
     changeAlwaysOnTop(alwaysOnTop)
   }
