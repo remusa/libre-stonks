@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge'
   import { Button } from '$lib/components/ui/button'
   import * as Card from '$lib/components/ui/card'
   import { Input } from '$lib/components/ui/input'
@@ -7,31 +8,63 @@
   import { cn } from '$lib/utils'
   import dayjs from 'dayjs'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
+  import Small from './lib/components/ui/typography/small.svelte'
 
-  let stocks = [
+  type Price = 'increment' | 'decrement' | 'meh'
+
+  function getChangeType(price: number): Price {
+    if (price < 0) {
+      return 'decrement'
+    } else if (price > 0) {
+      return 'increment'
+    } else {
+      return 'meh'
+    }
+  }
+
+  function getBadgeVariant(changeType: Price) {
+    if (changeType === 'increment') {
+      return 'default'
+    } else if (changeType === 'decrement') {
+      return 'destructive'
+    } else {
+      return 'outline'
+    }
+  }
+
+  type Stock = {
+    name: string
+    ticker: string
+    price: number[]
+  }
+
+  let stocks: Stock[] = [
     {
       name: 'Google',
       ticker: 'GOOG',
-      price: 17.55,
-      date: dayjs(),
+      price: [17.55, 50.0],
     },
     {
       name: 'Apple',
       ticker: 'APPL',
-      price: -69.99,
-      date: dayjs(),
+      price: [-100, -69.99],
+    },
+    {
+      name: 'Meta',
+      ticker: 'META',
+      price: [0, 0],
     },
   ]
   let search = ''
   console.log(`🚀 ~ search:`, search)
 </script>
 
-<main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0">
+<main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
   <header>
     <HeadingH1>Stock tracker</HeadingH1>
   </header>
 
-  <Tabs.Root value="home" class="w-full">
+  <Tabs.Root value="home" class="w-full h-full">
     <Tabs.List class="grid w-full grid-cols-3">
       <Tabs.Trigger value="home">Home</Tabs.Trigger>
       <Tabs.Trigger value="search">Search</Tabs.Trigger>
@@ -48,46 +81,49 @@
           <div class="w-full flex flex-col gap-2 items-center">
             <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
               {#each stocks as item, i (item.ticker)}
-                {@const noChange = item.price === 0}
-                {@const increment = item.price > 0}
-                {@const decrement = item.price < 0}
+                {@const price = item.price.at(0) + item.price.at(-1)}
+                {@const changeType = getChangeType(price)}
+                {@const badgeVariant = getBadgeVariant(changeType)}
                 <li class="grid-cols-12 w-full grid pt-2">
                   <span class="col-span-7">
-                    <div>
-                      <span class="p-1 rounded bold text-blue-900 bg-blue-200 w-16">
+                    <Badge variant="default" class="text-blue-900 bg-blue-200">
+                      <Small>
                         {item.ticker}
-                      </span>
-                    </div>
-                    <div>
-                      <span class="bold">
+                      </Small>
+                    </Badge>
+                    <div class="pl-2">
+                      <Small>
                         {item.name}
-                      </span>
+                      </Small>
                     </div>
                   </span>
+
                   <span class="col-span-5 grid grid-cols-2 gap-3 justify-center items-center">
-                    <span class="text-right">{item.price}</span>
-                    <span
-                      class={cn(
-                        'rounded p-1 text-white flex justify-between gap-0 bold',
-                        increment && 'bg-green-500',
-                        decrement && 'bg-red-500',
-                        noChange && 'bg-grey-500',
-                      )}
-                    >
+                    <span class="text-right">{item.price.at(-1)}</span>
+                    <Badge variant={badgeVariant} class="flex justify-between">
                       <span>
-                        {#if increment}
+                        {#if changeType === 'increment'}
                           +
-                        {:else if decrement}
+                        {:else if changeType === 'decrement'}
                           -
                         {:else}
-                          ' '
+                          {' '}
                         {/if}
                       </span>
                       <span>
-                        {Math.abs(item.price)}
+                        {Math.abs(item.price.at(-1))}
                       </span>
-                      <span>%</span>
-                    </span>
+                      <span>%</span></Badge
+                    >
+                    <!-- <span
+                      class={cn(
+                        'rounded p-1 text-white flex justify-between gap-0 bold',
+                        changeType === 'increment' && 'bg-green-500',
+                        changeType === 'decrement' && 'bg-red-500',
+                        changeType === 'meh' && 'bg-grey-500',
+                      )}
+                    >
+                    </span> -->
                   </span>
                 </li>
               {/each}
