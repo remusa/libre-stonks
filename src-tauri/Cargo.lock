@@ -1808,6 +1808,8 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-shell",
+ "window-shadows",
+ "window-vibrancy 0.4.3 (git+https://github.com/tauri-apps/window-vibrancy?branch=dev)",
 ]
 
 [[package]]
@@ -3313,7 +3315,7 @@ dependencies = [
  "url",
  "webkit2gtk",
  "webview2-com",
- "window-vibrancy",
+ "window-vibrancy 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "windows 0.52.0",
 ]
 
@@ -4116,10 +4118,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
+name = "window-shadows"
+version = "0.2.2"
+source = "git+https://github.com/tauri-apps/window-shadows?branch=dev#b7ae4f6da51831cb15ea94ef897fbaf49bc1595f"
+dependencies = [
+ "cocoa",
+ "objc",
+ "raw-window-handle",
+ "windows-sys 0.52.0",
+]
+
+[[package]]
 name = "window-vibrancy"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af6abc2b9c56bd95887825a1ce56cde49a2a97c07e28db465d541f5098a2656c"
+dependencies = [
+ "cocoa",
+ "objc",
+ "raw-window-handle",
+ "windows-sys 0.52.0",
+ "windows-version",
+]
+
+[[package]]
+name = "window-vibrancy"
+version = "0.4.3"
+source = "git+https://github.com/tauri-apps/window-vibrancy?branch=dev#fd1586562868a4b53816a77a25c17c0e3fa354a0"
 dependencies = [
  "cocoa",
  "objc",
