@@ -5,8 +5,6 @@
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import * as Tabs from '$lib/components/ui/tabs'
-  import { cn } from '$lib/utils'
-  import dayjs from 'dayjs'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
   import Small from './lib/components/ui/typography/small.svelte'
 
@@ -56,7 +54,9 @@
     },
   ]
   let search = ''
-  console.log(`🚀 ~ search:`, search)
+  $: {
+    console.log(`🚀 ~ search:`, search)
+  }
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -84,7 +84,8 @@
                 {@const price = item.price.at(0) + item.price.at(-1)}
                 {@const changeType = getChangeType(price)}
                 {@const badgeVariant = getBadgeVariant(changeType)}
-                <li class="grid-cols-12 w-full grid pt-2">
+
+                <li class="w-full flex justify-between pt-2">
                   <span class="col-span-7">
                     <Badge variant="default" class="text-blue-900 bg-blue-200">
                       <Small>
@@ -98,9 +99,9 @@
                     </div>
                   </span>
 
-                  <span class="col-span-5 grid grid-cols-2 gap-3 justify-center items-center">
+                  <span class="grid grid-cols-2 gap-3 justify-center items-center">
                     <span class="text-right">{item.price.at(-1)}</span>
-                    <Badge variant={badgeVariant} class="flex justify-between">
+                    <Badge variant={badgeVariant} class="flex justify-between w-16">
                       <span>
                         {#if changeType === 'increment'}
                           +
@@ -143,7 +144,7 @@
         <Card.Content class="space-y-2">
           <div class="space-y-1">
             <Label for="search">Search</Label>
-            <Input id="search" value="search" />
+            <Input id="search" bind:value={search} />
           </div>
         </Card.Content>
         <Card.Footer>
