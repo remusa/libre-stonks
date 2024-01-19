@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "tauri dev",
+    "dev:app": "vite",
     "dev:android": "tauri android dev",
     "init:android": "tauri android init",
     "build": "vite build",
@@ -12,7 +13,12 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "tauri": "tauri",
     "deps": "nlx taze -Iwi",
-    "sort": "nlx sort-package-json"
+    "sort": "nlx sort-package-json",
+    "fix": "nlx @biomejs/biome check --apply-unsafe ./src",
+    "format": "nlx @biomejs/biome format ./src --write",
+    "lint": "nlx @biomejs/biome lint ./src ",
+    "postinstall": "lefthook install",
+    "clean": "nlx rimraf node_modules/ dist/ src-tauri/target/"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0-alpha.13",
@@ -20,6 +26,9 @@
   },
   "devDependencies": {
     "@antfu/ni": "^0.21.12",
+    "@biomejs/biome": "^1.5.2",
+    "@commitlint/cli": "^18.4.4",
+    "@commitlint/config-conventional": "^18.4.4",
     "@sveltejs/adapter-static": "^3.0.1",
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
     "@tailwindcss/forms": "^0.5.7",
@@ -28,8 +37,10 @@
     "@tsconfig/svelte": "^5.0.2",
     "autoprefixer": "^10.4.16",
     "internal-ip": "^7.0.0",
+    "lefthook": "^1.5.7",
     "postcss": "^8.4.32",
     "postcss-load-config": "^5.0.2",
+    "rimraf": "^5.0.5",
     "svelte": "^4.2.8",
     "svelte-check": "^3.4.6",
     "tailwindcss": "^3.3.6",
