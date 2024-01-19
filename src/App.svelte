@@ -8,8 +8,10 @@
   import * as Tabs from '$lib/components/ui/tabs'
   import Paragraph from '$lib/components/ui/typography/paragraph.svelte'
   import { getCurrent } from '@tauri-apps/api/window'
+  import { onMount } from 'svelte'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
   import Small from './lib/components/ui/typography/small.svelte'
+  import { getValue, setValue, store } from './stores/stores'
 
   const appWindow = getCurrent()
 
@@ -59,8 +61,6 @@
     },
   ]
   let search = ''
-  $: {
-  }
 
   type Tabs = 'home' | 'search' | 'settings'
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
@@ -77,6 +77,15 @@
     await appWindow.setAlwaysOnTop(value)
     localStorage.setItem('always-on-top', alwaysOnTop.toString())
   }
+
+  let apiKey: string
+  $: {
+    setValue(store, 'api-key', apiKey)
+  }
+  onMount(async () => {
+    apiKey = (await getValue(store, 'api-key')) as string
+  })
+
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -191,6 +200,10 @@
           <div class="flex items-center space-x-2">
             <Switch id="always-on-top" class="" bind:checked={alwaysOnTop} />
             <Label for="always-on-top">Always on top</Label>
+          </div>
+          <div class="space-y-1">
+            <Label for="api-key">API key</Label>
+            <Input id="api-key" bind:value={apiKey} />
           </div>
         </Card.Content>
         <Card.Footer></Card.Footer>
