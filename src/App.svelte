@@ -6,6 +6,7 @@
   import { Label } from '$lib/components/ui/label'
   import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
+  import Paragraph from '$lib/components/ui/typography/paragraph.svelte'
   import { getCurrent } from '@tauri-apps/api/window'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
   import Small from './lib/components/ui/typography/small.svelte'
@@ -99,7 +100,7 @@
         <Card.Content class="space-y-2">
           <div class="w-full flex flex-col gap-2 items-center">
             <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
-              {#each stocks as item, i (item.ticker)}
+              {#each stocks as item (item.ticker)}
                 {@const price = item.price.at(0) + item.price.at(-1)}
                 {@const changeType = getChangeType(price)}
                 {@const badgeVariant = getBadgeVariant(changeType)}
@@ -172,6 +173,7 @@
             <Label for="search">Search</Label>
             <Input id="search" bind:value={search} />
           </div>
+          <Paragraph>{search}</Paragraph>
         </Card.Content>
         <Card.Footer>
           <Button>Search</Button>

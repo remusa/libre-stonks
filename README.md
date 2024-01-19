@@ -11,6 +11,7 @@ This template should help get you started developing with Tauri, Svelte and Type
 - [ ] Get stock data from API.
   - [ ] Fetch in the background.
   - [ ] Customize fetch time.
+- [ ] Display price graphic.
 - [ ] Store stocks in database.
 - [ ] Search for a stock.
 - [ ] Sort stocks by name/percentage/price.

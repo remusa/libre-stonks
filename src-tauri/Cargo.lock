@@ -1810,7 +1810,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "libre-stocks"
+name = "libre-stonks"
 version = "0.0.0"
 dependencies = [
  "serde_json",
