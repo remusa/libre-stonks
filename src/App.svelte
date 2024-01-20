@@ -2,6 +2,7 @@
   import { Badge } from '$lib/components/ui/badge'
   import { Button } from '$lib/components/ui/button'
   import * as Card from '$lib/components/ui/card'
+  import Combobox from '$lib/components/ui/combobox/combobox.svelte'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
   import { Switch } from '$lib/components/ui/switch'
@@ -103,10 +104,16 @@
     const json = await response.json()
     if (!json?.bestMatches) return []
     searchData = json.bestMatches.map(getAlphaAdvantage)
+    console.log(`🚀 ~ searchTerm ~ searchData:`, searchData)
   }
 
   const onSearchThrottle = throttle(searchTerm, 3000)
   const onSearch = debounce(searchTerm, 3000)
+
+  let selectedItem = {}
+  $: {
+    console.log(`🚀 ~ selectedItem:`, selectedItem)
+  }
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -220,6 +227,7 @@
               {/each}
             </ul>
           </div>
+          <Combobox data={searchData} bind:selectedItem />
         </Card.Content>
         <Card.Footer>
           <pre>{JSON.stringify(searchData)}</pre>

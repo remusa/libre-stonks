@@ -30,6 +30,7 @@
     "@tauri-apps/plugin-window-state": "2.0.0-alpha.5",
     "bits-ui": "^0.14.0",
     "clsx": "^2.1.0",
+    "cmdk-sv": "^0.0.13",
     "dayjs": "^1.11.10",
     "just-debounce-it": "^3.2.0",
     "just-throttle": "^4.2.0",

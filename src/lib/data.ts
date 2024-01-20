@@ -7,5 +7,8 @@ export function getAlphaAdvantage(data: any) {
     region: data['4. region'],
     timezone: data['7. timezone'],
     currency: data['8. currency'],
+    // for search
+    value: `${data['1. symbol']}-${data['2. name']}`,
+    label: data['2. name'],
   }
 }
