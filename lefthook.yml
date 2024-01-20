@@ -8,8 +8,15 @@ pre-commit:
   commands:
     check:
       glob: '*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}'
-      # run: nlx biome check --changed
+      # run: npx biome check --changed
       run: npx biome check --apply --no-errors-on-unmatched --files-ignore-unknown=true {staged_files} && git update-index --again
+
+commit-msg:
+  parallel: true
+  commands:
+    lint-commit-msg:
+      # run: npx --no -- commitlint --edit '$1'
+      run: npx commitlint --edit
 
 pre-push:
   parallel: false
