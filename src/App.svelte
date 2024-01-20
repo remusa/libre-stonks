@@ -7,6 +7,7 @@
   import { Label } from '$lib/components/ui/label'
   import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
+  import { Toggle } from '$lib/components/ui/toggle'
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import { getAlphaAdvantage } from '$lib/data'
@@ -17,6 +18,7 @@
   import dayjs from 'dayjs'
   import debounce from 'just-debounce-it'
   import throttle from 'just-throttle'
+  import { Eye, EyeOff } from 'lucide-svelte'
   import { onMount } from 'svelte'
   import mockSearch from './mock/search.json'
 
@@ -105,13 +107,13 @@
     const json = await response.json()
     if (!json?.bestMatches) return []
     searchData = json.bestMatches.map(getAlphaAdvantage)
-    console.log(`🚀 ~ searchTerm ~ searchData:`, searchData)
   }
 
   const onSearchThrottle = throttle(searchTerm, 3000)
   const onSearch = debounce(searchTerm, 3000)
 
   let selectedItem = {}
+
   const portfolio = new Map()
 
   function addToPortfolio() {
@@ -134,6 +136,8 @@
   //   }
   //   portfolio.delete(key)
   // }
+
+  let checked = false
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -271,7 +275,27 @@
           </div>
           <div class="space-y-1">
             <Label for="api-key">API key</Label>
-            <Input id="api-key" bind:value={apiKey} />
+            <div class="relative w-full">
+              {#if checked}
+                <Input id="api-key" bind:value={apiKey} />
+              {:else}
+                <Input id="api-key" bind:value={apiKey} type="password" {checked} />
+              {/if}
+              <Toggle
+                class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
+                disabled={!apiKey}
+                size="sm"
+                variant="default"
+                bind:pressed={checked}
+                aria-label="toggle bold"
+              >
+                {#if checked}
+                  <EyeOff class="h-4 w-4" />
+                {:else}
+                  <Eye class="h-4 w-4" />
+                {/if}
+              </Toggle>
+            </div>
           </div>
         </Card.Content>
         <Card.Footer></Card.Footer>

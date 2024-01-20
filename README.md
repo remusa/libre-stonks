@@ -1,10 +1,4 @@
-# Tauri + Svelte + Typescript
-
-This template should help get you started developing with Tauri, Svelte and TypeScript in Vite.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+# Libre Stonks
 
 ## TODO
 
@@ -28,3 +22,5 @@ This template should help get you started developing with Tauri, Svelte and Type
   - [x] Restore last screen when reopening tab (local storage)
   - [x] Toggle always on top
   - [x] Store settings in file (tauri-plugin-store)
+  - [x] Store api key in settings file
+  - [x] Toggle api key visibility
