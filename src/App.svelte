@@ -111,9 +111,23 @@
   const onSearch = debounce(searchTerm, 3000)
 
   let selectedItem = {}
-  $: {
-    console.log(`🚀 ~ selectedItem:`, selectedItem)
+  const portfolio = new Map()
+
+  function addToPortfolio() {
+    const key = selectedItem?.symbol
+    if (!key || portfolio.has(key)) {
+      return
+    }
+    portfolio.set(key, selectedItem)
   }
+
+  // function removeFromPortfolio() {
+  //   const key = selectedItem?.symbol
+  //   if (!key || !portfolio.has(key)) {
+  //     return
+  //   }
+  //   portfolio.delete(key)
+  // }
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -227,7 +241,10 @@
               {/each}
             </ul>
           </div>
-          <Combobox data={searchData} bind:selectedItem />
+          <div class="flex justify-between items-center gap-0">
+            <Combobox data={searchData} bind:selectedItem />
+            <Button on:click={addToPortfolio}>Add</Button>
+          </div>
         </Card.Content>
         <Card.Footer>
           <pre>{JSON.stringify(searchData)}</pre>

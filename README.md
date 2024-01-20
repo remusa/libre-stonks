@@ -13,7 +13,8 @@ This template should help get you started developing with Tauri, Svelte and Type
   - [ ] Customize fetch time.
 - [ ] Display price graphic.
 - [ ] Store stocks in database.
-- [ ] Search for a stock.
+- [x] Search for a stock.
+  - [ ] Select portfolio to add to.
 - [ ] Sort stocks by name/percentage/price.
 - [ ] Create individual portfolios.
   - [ ] Add current holdings per portfolio.
