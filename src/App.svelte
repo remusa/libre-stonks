@@ -24,7 +24,7 @@
 
   const appWindow = getCurrent()
 
-  type Price = 'increment' | 'decrement' | 'meh'
+  type Price = 'increment' | 'decrement' | 'no-change'
 
   function getChangeType(price: number): Price {
     if (price < 0) {
@@ -32,7 +32,7 @@
     } else if (price > 0) {
       return 'increment'
     } else {
-      return 'meh'
+      return 'no-change'
     }
   }
 
@@ -94,7 +94,6 @@
   onMount(async () => {
     apiKey = (await getValue(store, 'api-key')) as string
     const users = await selectUsers()
-    console.log(`🚀 ~ onMount ~ users:`, users)
   })
 
   let searchData = mockSearch.map(getAlphaAdvantage)
@@ -193,7 +192,7 @@
                         'rounded p-1 text-white flex justify-between gap-0 bold',
                         changeType === 'increment' && 'bg-green-500',
                         changeType === 'decrement' && 'bg-red-500',
-                        changeType === 'meh' && 'bg-grey-500',
+                        changeType === 'no-change' && 'bg-grey-500',
                       )}
                     >
                     </span> -->
