@@ -6,5 +6,5 @@ export function getAlphaAdvantage(data) {
 		region: data["4. region"],
 		timezone: data["7. timezone"],
 		currency: data["8. currency"],
-	};
+	}
 }
