@@ -1,10 +1,10 @@
-import path from "path";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
-import { internalIpV4 } from "internal-ip";
-import { defineConfig } from "vite";
+import path from 'path'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { internalIpV4 } from 'internal-ip'
+import { defineConfig } from 'vite'
 
 // @ts-expect-error process is a nodejs global
-const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM);
+const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM)
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -12,19 +12,19 @@ export default defineConfig(async () => ({
 	plugins: [svelte()],
 
 	test: {
-		include: ["src/**/*.{test,spec}.{js,ts}"],
+		include: ['src/**/*.{test,spec}.{js,ts}'],
 	},
 
 	build: {
-		target: ["es2022", "chrome120", "safari137"],
+		target: ['es2022', 'chrome120', 'safari137'],
 		// minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
 		sourcemap: !!process.env.TAURI_DEBUG,
-		outDir: "dist",
+		outDir: 'dist',
 	},
 
 	resolve: {
 		alias: {
-			$lib: path.resolve("./src/lib"),
+			$lib: path.resolve('./src/lib'),
 		},
 	},
 
@@ -36,19 +36,19 @@ export default defineConfig(async () => ({
 	server: {
 		port: 1420,
 		strictPort: true,
-		host: mobile ? "0.0.0.0" : false,
+		host: mobile ? '0.0.0.0' : false,
 		hmr: mobile
 			? {
-					protocol: "ws",
+					protocol: 'ws',
 					host: await internalIpV4(),
 					port: 1421,
 			  }
 			: undefined,
 		watch: {
 			// 3. tell vite to ignore watching `src-tauri`
-			ignored: ["**/src-tauri/**"],
+			ignored: ['**/src-tauri/**'],
 		},
 	},
 
-	envPrefix: ["VITE_", "TAURI_"],
-}));
+	envPrefix: ['VITE_', 'TAURI_'],
+}))

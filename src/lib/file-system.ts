@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/core"
-import { appConfigDir, appDataDir, appLocalDataDir } from "@tauri-apps/api/path"
+import { invoke } from '@tauri-apps/api/core'
+import { appConfigDir, appDataDir, appLocalDataDir } from '@tauri-apps/api/path'
 
 export async function show_in_folder(path: string) {
-	await invoke("show_in_folder", { path })
+	await invoke('show_in_folder', { path })
 }
 
 export async function openBaseDir() {

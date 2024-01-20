@@ -1,4 +1,4 @@
-import { Store } from "@tauri-apps/plugin-store"
+import { Store } from '@tauri-apps/plugin-store'
 
 export function createStore(storeName: string) {
 	const store = new Store(storeName)
@@ -21,4 +21,4 @@ export async function getValue(store: Store, key: string) {
 	return val
 }
 
-export const store = createStore(".settings.dat")
+export const store = createStore('.settings.dat')

@@ -1,15 +1,15 @@
-import { getAlphaAdvantage } from "./data"
-import { getValue, store } from "./stores/stores"
+import { getAlphaAdvantage } from './data'
+import { getValue, store } from './stores/stores'
 
-const ENDPOINT = "https://www.alphavantage.co/query?function="
-const API_KEY = await getValue(store, "api-key")
+const ENDPOINT = 'https://www.alphavantage.co/query?function='
+const API_KEY = await getValue(store, 'api-key')
 
 export async function getSymbol(keywords: string) {
 	try {
 		const response = await fetch(
 			`${ENDPOINT}SYMBOL_SEARCH&keywords=${keywords}&apikey=${API_KEY}`,
 			{
-				method: "GET",
+				method: 'GET',
 			},
 		)
 		if (response.status !== 200) {
@@ -19,7 +19,7 @@ export async function getSymbol(keywords: string) {
 		const data = json?.bestMatches.map(getAlphaAdvantage) ?? []
 		return data
 	} catch (e) {
-		console.log("🚀 ~ getSymbol ~ e:", e)
+		console.log('🚀 ~ getSymbol ~ e:', e)
 		return []
 	}
 }
