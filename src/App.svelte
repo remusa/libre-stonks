@@ -7,17 +7,17 @@
   import { Label } from '$lib/components/ui/label'
   import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
+  import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
+  import Small from '$lib/components/ui/typography/small.svelte'
   import { getAlphaAdvantage } from '$lib/data'
+  import { getValue, setValue, store } from '$lib/stores/stores'
   import { getCurrent } from '@tauri-apps/api/window'
   import { fetch } from '@tauri-apps/plugin-http'
   import dayjs from 'dayjs'
   import debounce from 'just-debounce-it'
   import throttle from 'just-throttle'
   import { onMount } from 'svelte'
-  import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
-  import Small from './lib/components/ui/typography/small.svelte'
   import mockSearch from './mock/search.json'
-  import { getValue, setValue, store } from './stores/stores'
 
   const appWindow = getCurrent()
 
