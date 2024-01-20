@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getSymbol } from '$lib/api'
   import { Badge } from '$lib/components/ui/badge'
   import { Button } from '$lib/components/ui/button'
   import * as Card from '$lib/components/ui/card'
@@ -16,10 +17,7 @@
   import { getValue, setValue, store } from '$lib/stores/stores'
   import { appConfigDir } from '@tauri-apps/api/path'
   import { getCurrent } from '@tauri-apps/api/window'
-  import { fetch } from '@tauri-apps/plugin-http'
-  import dayjs from 'dayjs'
   import debounce from 'just-debounce-it'
-  import throttle from 'just-throttle'
   import { Eye, EyeOff } from 'lucide-svelte'
   import { onMount } from 'svelte'
   import mockSearch from './mock/search.json'
@@ -99,25 +97,14 @@
 
   let searchData = mockSearch.map(getAlphaAdvantage)
 
-  async function searchTerm() {
-    const response = await fetch(
-      `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${search}&apikey=${apiKey}`,
-      {
-        method: 'GET',
-      },
-    )
-    const json = await response.json()
-    if (!json?.bestMatches) return []
-    searchData = json.bestMatches.map(getAlphaAdvantage)
-  }
-
-  const onSearchThrottle = throttle(searchTerm, 3000)
-  const onSearch = debounce(searchTerm, 3000)
+  const onSearch = debounce(async () => {
+    const data = await getSymbol(search)
+    searchData = data
+  }, 3000)
 
   let selectedItem = {}
 
   const portfolio = new Map()
-
   function addToPortfolio() {
     const key = selectedItem?.symbol
     if (!key || portfolio.has(key)) {
@@ -245,28 +232,12 @@
               <Button on:click={onSearch}>Search</Button>
             </div>
           </div>
-          <div>
-            <ul>
-              {#each searchData as item (item.symbol)}
-                <li>
-                  <span>{item.symbol}</span>
-                  <span>{item.name}</span>
-                  <span>{item.type}</span>
-                  <span>{item.region}</span>
-                  <span>{dayjs(item.timezone).format('YYYY/MM/DD')}</span>
-                  <span>{item.currency}</span>
-                </li>
-              {/each}
-            </ul>
-          </div>
           <div class="flex justify-between items-center gap-0">
             <Combobox data={searchData} bind:selectedItem />
             <Button on:click={addToPortfolio}>Add</Button>
           </div>
         </Card.Content>
-        <Card.Footer>
-          <pre>{JSON.stringify(searchData)}</pre>
-        </Card.Footer>
+        <Card.Footer></Card.Footer>
       </Card.Root>
     </Tabs.Content>
 
