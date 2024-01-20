@@ -10,6 +10,7 @@
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import { getAlphaAdvantage } from '$lib/data'
+  import { notify, toastify } from '$lib/notifications'
   import { getValue, setValue, store } from '$lib/stores/stores'
   import { getCurrent } from '@tauri-apps/api/window'
   import { fetch } from '@tauri-apps/plugin-http'
@@ -119,6 +120,11 @@
       return
     }
     portfolio.set(key, selectedItem)
+    const title = 'Success!'
+    const body = `'${key}' has been added to the portfolio.`
+    notify(title, body)
+    toastify(title, body)
+    selectedItem = {}
   }
 
   // function removeFromPortfolio() {
