@@ -20,6 +20,9 @@ dependencies:
   '@tauri-apps/plugin-shell':
     specifier: ^2.0.0-alpha.5
     version: 2.0.0-alpha.5
+  '@tauri-apps/plugin-sql':
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   '@tauri-apps/plugin-store':
     specifier: 2.0.0-alpha.5
     version: 2.0.0-alpha.5
@@ -1082,6 +1085,12 @@ packages:
 
   /@tauri-apps/plugin-shell@2.0.0-alpha.5:
     resolution: {integrity: sha512-iAurwn0z16NLOLaiuk3ETLtoG6x/mgFZo75YYKYLiOg70PYMr4LpcjvNPoIPvokdqWWPa7C/6N3eE9jtcbQiLg==}
+    dependencies:
+      '@tauri-apps/api': 2.0.0-alpha.13
+    dev: false
+
+  /@tauri-apps/plugin-sql@2.0.0-alpha.5:
+    resolution: {integrity: sha512-u4rJZM357zWP+WmE/W1t1iu0/INQ9uqO8+dOFWzLSGqg2zgYcohTeV66hZoeCTRTzsV3qrKI3suWueLu1YKT7A==}
     dependencies:
       '@tauri-apps/api': 2.0.0-alpha.13
     dev: false

@@ -12,10 +12,10 @@
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import { getAlphaAdvantage } from '$lib/data'
+  import { selectUsers } from '$lib/db'
   import { openConfigDir } from '$lib/file-system'
   import { notify, toastify } from '$lib/notifications'
   import { getValue, setValue, store } from '$lib/stores/stores'
-  import { appConfigDir } from '@tauri-apps/api/path'
   import { getCurrent } from '@tauri-apps/api/window'
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
@@ -93,6 +93,8 @@
   }
   onMount(async () => {
     apiKey = (await getValue(store, 'api-key')) as string
+    const users = await selectUsers()
+    console.log(`🚀 ~ onMount ~ users:`, users)
   })
 
   let searchData = mockSearch.map(getAlphaAdvantage)
