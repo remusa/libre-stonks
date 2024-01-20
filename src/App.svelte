@@ -10,9 +10,12 @@
   import { getCurrent } from '@tauri-apps/api/window'
   import { fetch } from '@tauri-apps/plugin-http'
   import dayjs from 'dayjs'
+  import debounce from 'just-debounce-it'
+  import throttle from 'just-throttle'
   import { onMount } from 'svelte'
   import HeadingH1 from './lib/components/ui/typography/heading-h1.svelte'
   import Small from './lib/components/ui/typography/small.svelte'
+  import mockSearch from './mock/search.json'
   import { getValue, setValue, store } from './stores/stores'
 
   const appWindow = getCurrent()
@@ -88,30 +91,7 @@
     apiKey = (await getValue(store, 'api-key')) as string
   })
 
-  let searchData = [
-    {
-      '1. symbol': 'GOOG',
-      '2. name': 'Alphabet Inc - Class C',
-      '3. type': 'Equity',
-      '4. region': 'United States',
-      '5. marketOpen': '09:30',
-      '6. marketClose': '16:00',
-      '7. timezone': 'UTC-04',
-      '8. currency': 'USD',
-      '9. matchScore': '1.0000',
-    },
-    {
-      '1. symbol': 'GOOGL',
-      '2. name': 'Alphabet Inc - Class A',
-      '3. type': 'Equity',
-      '4. region': 'United States',
-      '5. marketOpen': '09:30',
-      '6. marketClose': '16:00',
-      '7. timezone': 'UTC-04',
-      '8. currency': 'USD',
-      '9. matchScore': '0.8889',
-    },
-  ].map(getAlphaAdvantage)
+  let searchData = mockSearch.map(getAlphaAdvantage)
 
   async function searchTerm() {
     const response = await fetch(
@@ -123,8 +103,10 @@
     const json = await response.json()
     if (!json?.bestMatches) return []
     searchData = json.bestMatches.map(getAlphaAdvantage)
-    console.log(`🚀 ~ searchTerm ~ searchData:`, searchData)
   }
+
+  const onSearchThrottle = throttle(searchTerm, 3000)
+  const onSearch = debounce(searchTerm, 3000)
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -221,7 +203,7 @@
             <Label for="search">Search</Label>
             <div class="flex justify-between gap-2">
               <Input id="search" bind:value={search} />
-              <Button on:click={searchTerm}>Search</Button>
+              <Button on:click={onSearch}>Search</Button>
             </div>
           </div>
           <div>
@@ -239,7 +221,9 @@
             </ul>
           </div>
         </Card.Content>
-        <Card.Footer></Card.Footer>
+        <Card.Footer>
+          <pre>{JSON.stringify(searchData)}</pre>
+        </Card.Footer>
       </Card.Root>
     </Tabs.Content>
 
