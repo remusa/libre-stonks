@@ -12,7 +12,7 @@
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import { getAlphaAdvantage } from '$lib/data'
-  import { show_in_folder } from '$lib/file-system'
+  import { openConfigDir } from '$lib/file-system'
   import { notify, toastify } from '$lib/notifications'
   import { getValue, setValue, store } from '$lib/stores/stores'
   import { appConfigDir } from '@tauri-apps/api/path'
@@ -127,12 +127,6 @@
   // }
 
   let checked = false
-
-  async function openSettings() {
-    const configDir = await appConfigDir()
-    // NOTE: await open(configDir) there is an issue to open explorer: https://github.com/tauri-apps/tauri/issues/4062
-    show_in_folder(configDir)
-  }
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -279,7 +273,7 @@
         </Card.Content>
         <Card.Footer>
           <div class="flex items-center justify-center space-x-2">
-            <Button variant="outline" on:click={openSettings}>Show in explorer</Button>
+            <Button variant="outline" on:click={openConfigDir}>Config</Button>
           </div>
         </Card.Footer>
       </Card.Root>
