@@ -22,5 +22,5 @@
   - [x] Restore last screen when reopening tab (local storage)
   - [x] Toggle always on top
   - [x] Store settings in file (tauri-plugin-store)
-  - [x] Store api key in settings file
-  - [x] Toggle api key visibility
+  - [x] Store api keys in settings file
+  - [x] Toggle api keys visibility

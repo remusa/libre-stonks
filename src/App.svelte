@@ -20,6 +20,7 @@
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
   import { onMount } from 'svelte'
+  import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
   import mockSearch from './mock/search.json'
 
   const appWindow = getCurrent()
@@ -87,12 +88,15 @@
     localStorage.setItem('always-on-top', alwaysOnTop.toString())
   }
 
-  let apiKey: string
+  let apiKeyAlphaVantage: string
+  let apiKeyPolygon: string
   $: {
-    setValue(store, 'api-key', apiKey)
+    setValue(store, 'api-key-alpha-vantage', apiKeyAlphaVantage)
+    setValue(store, 'api-key-polygon', apiKeyPolygon)
   }
   onMount(async () => {
-    apiKey = (await getValue(store, 'api-key')) as string
+    apiKeyAlphaVantage = (await getValue(store, 'api-key-alpha-vantage')) as string
+    apiKeyPolygon = (await getValue(store, 'api-key-polygon')) as string
     const users = await selectUsers()
   })
 
@@ -107,6 +111,8 @@
 
   const portfolio = new Map()
   function addToPortfolio() {
+    // @ts-ignore
+    // TODO: type API responses
     const key = selectedItem?.symbol
     if (!key || portfolio.has(key)) {
       return
@@ -127,7 +133,8 @@
   //   portfolio.delete(key)
   // }
 
-  let checked = false
+  let checkedAlphaVantage = false
+  let checkedPolygon = false
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -152,7 +159,7 @@
           <div class="w-full flex flex-col gap-2 items-center">
             <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
               {#each stocks as item (item.ticker)}
-                {@const price = item.price.at(0) + item.price.at(-1)}
+                {@const price = (item.price?.at(0) ?? 0) + (item.price?.at(-1) ?? 0)}
                 {@const changeType = getChangeType(price)}
                 {@const badgeVariant = getBadgeVariant(changeType)}
 
@@ -183,7 +190,7 @@
                         {/if}
                       </span>
                       <span>
-                        {Math.abs(item.price.at(-1))}
+                        {Math.abs(item.price?.at(-1) ?? 0)}
                       </span>
                       <span>%</span></Badge
                     >
@@ -247,28 +254,60 @@
             <Switch id="always-on-top" class="" bind:checked={alwaysOnTop} />
             <Label for="always-on-top">Always on top</Label>
           </div>
+
+          <HeadingH3 class="text-base pt-2">API Keys</HeadingH3>
           <div class="space-y-1">
-            <Label for="api-key">API key</Label>
+            <Label for="api-key-alpha-vantage">Alpha Vantage</Label>
             <div class="relative w-full">
-              {#if checked}
-                <Input id="api-key" bind:value={apiKey} />
+              {#if checkedAlphaVantage}
+                <Input id="api-key-alpha-vantage" bind:value={apiKeyAlphaVantage} />
               {:else}
-                <Input id="api-key" bind:value={apiKey} type="password" {checked} />
+                <Input
+                  id="api-key-alpha-vantage"
+                  bind:value={apiKeyAlphaVantage}
+                  type="password"
+                  checked={checkedAlphaVantage}
+                />
               {/if}
               <Toggle
                 class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
-                disabled={!apiKey}
+                disabled={!apiKeyAlphaVantage}
                 size="sm"
                 variant="default"
-                bind:pressed={checked}
+                bind:pressed={checkedAlphaVantage}
                 aria-label="toggle bold"
               >
-                {#if checked}
+                {#if checkedAlphaVantage}
                   <EyeOff class="h-4 w-4" />
                 {:else}
                   <Eye class="h-4 w-4" />
                 {/if}
               </Toggle>
+            </div>
+
+            <div class="space-y-1">
+              <Label for="api-key-polygon">Polygon</Label>
+              <div class="relative w-full">
+                {#if checkedPolygon}
+                  <Input id="api-key-polygon" bind:value={apiKeyPolygon} />
+                {:else}
+                  <Input id="api-key-polygon" bind:value={apiKeyPolygon} type="password" checked={checkedPolygon} />
+                {/if}
+                <Toggle
+                  class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
+                  disabled={!apiKeyPolygon}
+                  size="sm"
+                  variant="default"
+                  bind:pressed={checkedPolygon}
+                  aria-label="toggle bold"
+                >
+                  {#if checkedPolygon}
+                    <EyeOff class="h-4 w-4" />
+                  {:else}
+                    <Eye class="h-4 w-4" />
+                  {/if}
+                </Toggle>
+              </div>
             </div>
           </div>
         </Card.Content>
