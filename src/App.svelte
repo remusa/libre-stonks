@@ -76,6 +76,8 @@
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
   $: {
     localStorage.setItem('tab', tab)
+    checkedAlphaVantage = false
+    checkedPolygon = false
   }
 
   let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' ?? true
