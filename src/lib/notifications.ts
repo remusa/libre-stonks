@@ -4,7 +4,7 @@ import {
 	sendNotification,
 } from '@tauri-apps/plugin-notification'
 
-export async function notify(title: string, body: string) {
+export async function notifyNative(title: string, body: string) {
 	// Do you have permission to send a notification?
 	let permissionGranted = await isPermissionGranted()
 
@@ -21,4 +21,4 @@ export async function notify(title: string, body: string) {
 }
 
 // TODO: show toast using shadcn-svelte
-export async function toastify(title: string, body: string) {}
+export async function notifyWeb(title: string, body: string) {}

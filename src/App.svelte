@@ -15,7 +15,7 @@
   import { getAlphaAdvantage } from '$lib/data'
   import { selectUsers } from '$lib/db'
   import { openConfigDir } from '$lib/file-system'
-  import { notify, toastify } from '$lib/notifications'
+  import { notifyNative, notifyWeb } from '$lib/notifications'
   import { getValue, setValue, store } from '$lib/stores/stores'
   import { getCurrent } from '@tauri-apps/api/window'
   import debounce from 'just-debounce-it'
@@ -71,6 +71,7 @@
       price: [0, 0],
     },
   ]
+
   let search = ''
 
   type Tabs = 'home' | 'search' | 'settings'
@@ -124,7 +125,7 @@
   let selectedItem = {}
 
   const portfolio = new Map()
-  function addToPortfolio() {
+  async function addToPortfolio() {
     // @ts-ignore
     // TODO: type API responses
     const key = selectedItem?.symbol
@@ -132,11 +133,18 @@
       return
     }
     portfolio.set(key, selectedItem)
-    const title = 'Success!'
-    const body = `'${key}' has been added to the portfolio.`
-    notify(title, body)
-    toastify(title, body)
+    notify('Success!', `'${key}' has been added to the portfolio.`)
     selectedItem = {}
+  }
+
+  let useNativeNotification = true
+
+  function notify(title: string, body: string) {
+    if (useNativeNotification) {
+      notifyNative(title, body)
+    } else {
+      notifyWeb(title, body)
+    }
   }
 
   // function removeFromPortfolio() {
@@ -264,11 +272,16 @@
           <Card.Description>App settings.</Card.Description>
         </Card.Header>
         <Card.Content class="space-y-2">
-          <HeadingH3 class="text-base">Window</HeadingH3>
+          <HeadingH3 class="text-base">App</HeadingH3>
 
           <div class="flex items-center space-x-2">
             <Switch id="always-on-top" class="" bind:checked={alwaysOnTop} />
             <Label for="always-on-top">Always on top</Label>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <Switch id="native-notifications" class="" bind:checked={useNativeNotification} />
+            <Label for="native-notifications">Use native notifications</Label>
           </div>
 
           <HeadingH3 class="text-base pt-2">API Keys</HeadingH3>
@@ -356,6 +369,9 @@
         <Card.Footer>
           <div class="flex items-center justify-center space-x-2">
             <Button variant="outline" on:click={openConfigDir}>Config</Button>
+            <Button variant="outline" on:click={() => notify('Notification', 'Test notification')}
+              >Send test notification</Button
+            >
           </div>
         </Card.Footer>
       </Card.Root>
