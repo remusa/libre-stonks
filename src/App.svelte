@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { getSymbolAlphaVantage, getSymbolPolygon } from '$lib/api'
+  import * as apiAlphaVantage from '$lib/api/alpha-vantage'
+  import * as apiPolygon from '$lib/api/polygon'
   import { Badge } from '$lib/components/ui/badge'
   import { Button } from '$lib/components/ui/button'
   import * as Card from '$lib/components/ui/card'
@@ -78,8 +79,7 @@
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
   $: {
     localStorage.setItem('tab', tab)
-    checkedAlphaVantage = false
-    checkedPolygon = false
+    checkedAlphaVantage = checkedPolygon = false
   }
 
   let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' ?? true
@@ -106,19 +106,23 @@
 
   let searchData = mockSearch.map(getAlphaAdvantage)
 
+  // TODO: implement Alpha Vantage
   type APIEndpoint = 'alpha-vantage' | 'polygon'
   let apiEndpoint: APIEndpoint = 'polygon'
-  let getSymbol = getSymbolPolygon
+  let api = apiPolygon
   $: {
-    if (apiEndpoint === 'alpha-vantage') {
-      getSymbol = getSymbolAlphaVantage
-    } else if (apiEndpoint === 'polygon') {
-      getSymbol = getSymbolPolygon
+    switch (apiEndpoint) {
+      case 'alpha-vantage':
+        api = apiAlphaVantage
+        break
+      case 'polygon':
+        api = apiPolygon
+        break
     }
   }
 
   const onSearch = debounce(async () => {
-    const data = await getSymbolAlphaVantage(search)
+    const data = await api.findSymbol(search)
     searchData = data
   }, 3000)
 
@@ -289,7 +293,7 @@
           <div class="space-y-1">
             <RadioGroup.Root bind:value={apiEndpoint}>
               <div class="flex items-center space-x-2">
-                <RadioGroup.Item value="alpha-vantage" id="r1" />
+                <RadioGroup.Item value="alpha-vantage" id="r1" disabled />
                 <Label for="r1">Alpha Vantage</Label>
               </div>
               <div class="flex items-center space-x-2">
@@ -320,7 +324,7 @@
               {/if}
               <Toggle
                 class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
-                disabled={!apiKeyAlphaVantage}
+                disabled={!apiKeyAlphaVantage || apiEndpoint !== 'alpha-vantage'}
                 size="sm"
                 variant="default"
                 bind:pressed={checkedAlphaVantage}
@@ -350,7 +354,7 @@
                 {/if}
                 <Toggle
                   class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
-                  disabled={!apiKeyPolygon}
+                  disabled={!apiKeyPolygon || apiEndpoint !== 'polygon'}
                   size="sm"
                   variant="default"
                   bind:pressed={checkedPolygon}
