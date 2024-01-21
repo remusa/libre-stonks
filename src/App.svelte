@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { getSymbol } from '$lib/api'
+  import { getSymbolAlphaVantage, getSymbolPolygon } from '$lib/api'
   import { Badge } from '$lib/components/ui/badge'
   import { Button } from '$lib/components/ui/button'
   import * as Card from '$lib/components/ui/card'
   import Combobox from '$lib/components/ui/combobox/combobox.svelte'
   import { Input } from '$lib/components/ui/input'
   import { Label } from '$lib/components/ui/label'
+  import * as RadioGroup from '$lib/components/ui/radio-group'
   import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
   import { Toggle } from '$lib/components/ui/toggle'
@@ -104,8 +105,19 @@
 
   let searchData = mockSearch.map(getAlphaAdvantage)
 
+  type APIEndpoint = 'alpha-vantage' | 'polygon'
+  let apiEndpoint: APIEndpoint = 'polygon'
+  let getSymbol = getSymbolPolygon
+  $: {
+    if (apiEndpoint === 'alpha-vantage') {
+      getSymbol = getSymbolAlphaVantage
+    } else if (apiEndpoint === 'polygon') {
+      getSymbol = getSymbolPolygon
+    }
+  }
+
   const onSearch = debounce(async () => {
-    const data = await getSymbol(search)
+    const data = await getSymbolAlphaVantage(search)
     searchData = data
   }, 3000)
 
@@ -252,23 +264,45 @@
           <Card.Description>App settings.</Card.Description>
         </Card.Header>
         <Card.Content class="space-y-2">
+          <HeadingH3 class="text-base">Window</HeadingH3>
+
           <div class="flex items-center space-x-2">
             <Switch id="always-on-top" class="" bind:checked={alwaysOnTop} />
             <Label for="always-on-top">Always on top</Label>
           </div>
 
           <HeadingH3 class="text-base pt-2">API Keys</HeadingH3>
+
+          <div class="space-y-1">
+            <RadioGroup.Root bind:value={apiEndpoint}>
+              <div class="flex items-center space-x-2">
+                <RadioGroup.Item value="alpha-vantage" id="r1" />
+                <Label for="r1">Alpha Vantage</Label>
+              </div>
+              <div class="flex items-center space-x-2">
+                <RadioGroup.Item value="polygon" id="r2" />
+                <Label for="r2">Polygon</Label>
+              </div>
+              <RadioGroup.Input name="spacing" />
+            </RadioGroup.Root>
+          </div>
+
           <div class="space-y-1">
             <Label for="api-key-alpha-vantage">Alpha Vantage</Label>
             <div class="relative w-full">
               {#if checkedAlphaVantage}
-                <Input id="api-key-alpha-vantage" bind:value={apiKeyAlphaVantage} />
+                <Input
+                  id="api-key-alpha-vantage"
+                  bind:value={apiKeyAlphaVantage}
+                  disabled={apiEndpoint !== 'alpha-vantage'}
+                />
               {:else}
                 <Input
                   id="api-key-alpha-vantage"
                   bind:value={apiKeyAlphaVantage}
                   type="password"
                   checked={checkedAlphaVantage}
+                  disabled={apiEndpoint !== 'alpha-vantage'}
                 />
               {/if}
               <Toggle
@@ -291,9 +325,15 @@
               <Label for="api-key-polygon">Polygon</Label>
               <div class="relative w-full">
                 {#if checkedPolygon}
-                  <Input id="api-key-polygon" bind:value={apiKeyPolygon} />
+                  <Input id="api-key-polygon" bind:value={apiKeyPolygon} disabled={apiEndpoint !== 'polygon'} />
                 {:else}
-                  <Input id="api-key-polygon" bind:value={apiKeyPolygon} type="password" checked={checkedPolygon} />
+                  <Input
+                    id="api-key-polygon"
+                    bind:value={apiKeyPolygon}
+                    disabled={apiEndpoint !== 'polygon'}
+                    type="password"
+                    checked={checkedPolygon}
+                  />
                 {/if}
                 <Toggle
                   class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
