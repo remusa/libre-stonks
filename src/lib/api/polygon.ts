@@ -47,7 +47,7 @@ export async function getSymbol(ticker: string) {
 
 export async function update(tickers: TickerDataType[]) {
 	try {
-		const tickerList = dataProcessing.getTickerList(tickers).split(',').at(0)
+		const tickerList = dataProcessing.getTickerList(tickers)
 		const apiUrl = `${ENDPOINT}/reference/tickers?apiKey=${config.API_KEY_POLYGON}&ticker=${tickerList}`
 		const response = await fetch(apiUrl, { method: 'GET' })
 		if (!response.ok) {

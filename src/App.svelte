@@ -55,7 +55,7 @@
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
   $: {
     localStorage.setItem('tab', tab)
-    checkedAlphaVantage = checkedPolygon = false
+    checkedAlphaVantage = checkedPolygon = checkedIexCloud = false
   }
 
   let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' || true
@@ -74,18 +74,24 @@
 
   let apiKeyAlphaVantage: string
   let apiKeyPolygon: string
+  let apiKeyIEXCloud: string
   onMount(async () => {
     apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
     apiKeyPolygon = config.API_KEY_POLYGON as string
+    apiKeyIEXCloud = config.API_KEY_IEX_CLOUD as string
   })
   $: {
     stores.setValue(stores.settingsStore, 'api-key-alpha-vantage', apiKeyAlphaVantage)
     stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
+    stores.setValue(stores.settingsStore, 'api-key-iex-cloud', apiKeyIEXCloud)
   }
 
-  type APIEndpoint = 'alpha-vantage' | 'polygon'
-  let apiEndpoint: APIEndpoint = 'polygon'
+  type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud'
+  let apiEndpoint: APIEndpoint
   let api = apiPolygon
+  onMount(async () => {
+    apiEndpoint = config.API_ENDPOINT as APIEndpoint
+  })
   $: {
     switch (apiEndpoint) {
       case 'alpha-vantage':
@@ -94,15 +100,18 @@
       case 'polygon':
         api = apiPolygon
         break
+      case 'iex-cloud':
+        api = apiIexCloud
+        break
     }
+    stores.setValue(stores.settingsStore, 'api-endpoint', apiEndpoint)
   }
 
   let search = ''
   let searchData = mockSearch.results.map(dataProcessing.formatPolygon)
   const onSearch = debounce(async () => {
     const data = await api.search(search)
-    const processed = data.map(dataProcessing.formatPolygon)
-    searchData = processed
+    searchData = data
   }, 3000)
 
   let tickers = db.tickers
@@ -118,6 +127,7 @@
 
   let checkedAlphaVantage = false
   let checkedPolygon = false
+  let checkedIexCloud = false
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
@@ -227,6 +237,7 @@
           <Card.Title>Settings</Card.Title>
           <Card.Description>App settings.</Card.Description>
         </Card.Header>
+
         <Card.Content class="space-y-2">
           <HeadingH3 class="text-base">App</HeadingH3>
 
@@ -252,42 +263,48 @@
                 <RadioGroup.Item value="polygon" id="r2" />
                 <Label for="r2">Polygon</Label>
               </div>
+              <div class="flex items-center space-x-2">
+                <RadioGroup.Item value="iex-cloud" id="r3" />
+                <Label for="r3">IEX Cloud</Label>
+              </div>
               <RadioGroup.Input name="spacing" />
             </RadioGroup.Root>
           </div>
 
           <div class="space-y-1">
-            <Label for="api-key-alpha-vantage">Alpha Vantage</Label>
-            <div class="relative w-full">
-              {#if checkedAlphaVantage}
-                <Input
-                  id="api-key-alpha-vantage"
-                  bind:value={apiKeyAlphaVantage}
-                  disabled={apiEndpoint !== 'alpha-vantage'}
-                />
-              {:else}
-                <Input
-                  id="api-key-alpha-vantage"
-                  bind:value={apiKeyAlphaVantage}
-                  type="password"
-                  checked={checkedAlphaVantage}
-                  disabled={apiEndpoint !== 'alpha-vantage'}
-                />
-              {/if}
-              <Toggle
-                class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
-                disabled={!apiKeyAlphaVantage || apiEndpoint !== 'alpha-vantage'}
-                size="sm"
-                variant="default"
-                bind:pressed={checkedAlphaVantage}
-                aria-label="toggle bold"
-              >
+            <div class="space-y-1">
+              <Label for="api-key-alpha-vantage">Alpha Vantage</Label>
+              <div class="relative w-full">
                 {#if checkedAlphaVantage}
-                  <EyeOff class="h-4 w-4" />
+                  <Input
+                    id="api-key-alpha-vantage"
+                    bind:value={apiKeyAlphaVantage}
+                    disabled={apiEndpoint !== 'alpha-vantage'}
+                  />
                 {:else}
-                  <Eye class="h-4 w-4" />
+                  <Input
+                    id="api-key-alpha-vantage"
+                    bind:value={apiKeyAlphaVantage}
+                    type="password"
+                    checked={checkedAlphaVantage}
+                    disabled={apiEndpoint !== 'alpha-vantage'}
+                  />
                 {/if}
-              </Toggle>
+                <Toggle
+                  class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
+                  disabled={!apiKeyAlphaVantage || apiEndpoint !== 'alpha-vantage'}
+                  size="sm"
+                  variant="default"
+                  bind:pressed={checkedAlphaVantage}
+                  aria-label="toggle bold"
+                >
+                  {#if checkedAlphaVantage}
+                    <EyeOff class="h-4 w-4" />
+                  {:else}
+                    <Eye class="h-4 w-4" />
+                  {/if}
+                </Toggle>
+              </div>
             </div>
 
             <div class="space-y-1">
@@ -320,8 +337,40 @@
                 </Toggle>
               </div>
             </div>
+
+            <div class="space-y-1">
+              <Label for="api-key-iex-cloud">IEX Cloud</Label>
+              <div class="relative w-full">
+                {#if checkedIexCloud}
+                  <Input id="api-key-iex-cloud" bind:value={apiKeyIEXCloud} disabled={apiEndpoint !== 'iex-cloud'} />
+                {:else}
+                  <Input
+                    id="api-key-iex-cloud"
+                    bind:value={apiKeyIEXCloud}
+                    disabled={apiEndpoint !== 'iex-cloud'}
+                    type="password"
+                    checked={checkedIexCloud}
+                  />
+                {/if}
+                <Toggle
+                  class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
+                  disabled={!apiKeyIEXCloud || apiEndpoint !== 'iex-cloud'}
+                  size="sm"
+                  variant="default"
+                  bind:pressed={checkedIexCloud}
+                  aria-label="toggle bold"
+                >
+                  {#if checkedIexCloud}
+                    <EyeOff class="h-4 w-4" />
+                  {:else}
+                    <Eye class="h-4 w-4" />
+                  {/if}
+                </Toggle>
+              </div>
+            </div>
           </div>
         </Card.Content>
+
         <Card.Footer>
           <div class="flex items-center justify-center space-x-2">
             <Button variant="outline" on:click={openConfigDir}>Config</Button>
