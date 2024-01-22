@@ -29,7 +29,7 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"resizable": true,
+				"resizable": false,
 				"alwaysOnTop": true,
 				"decorations": true,
 				"transparent": false,

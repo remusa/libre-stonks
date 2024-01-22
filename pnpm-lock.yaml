@@ -26,6 +26,9 @@ dependencies:
   '@tauri-apps/plugin-store':
     specifier: 2.0.0-alpha.5
     version: 2.0.0-alpha.5
+  '@tauri-apps/plugin-websocket':
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   '@tauri-apps/plugin-window-state':
     specifier: 2.0.0-alpha.5
     version: 2.0.0-alpha.5
@@ -1100,6 +1103,12 @@ packages:
 
   /@tauri-apps/plugin-store@2.0.0-alpha.5:
     resolution: {integrity: sha512-n20kHSQwfoRf0p8mRuntba1WuPTMJwurs0veDSGoet87Woo8jdFdSBE30y4vpTzMr2Z8dvw0B0Xbh/Jxxisybg==}
+    dependencies:
+      '@tauri-apps/api': 2.0.0-alpha.13
+    dev: false
+
+  /@tauri-apps/plugin-websocket@2.0.0-alpha.5:
+    resolution: {integrity: sha512-h8sumPSPPBY02H9TP7DMlfDv6if3FeknAtAJDYbMGrd1kwjDnqcUO9DOwBPiyML2Kx7PuZAHEGYy/PQrS6p2hw==}
     dependencies:
       '@tauri-apps/api': 2.0.0-alpha.13
     dev: false

@@ -143,7 +143,6 @@
   }
 
   let useNativeNotification = true
-
   function notify(title: string, body: string) {
     if (useNativeNotification) {
       notifyNative(title, body)
