@@ -13,11 +13,13 @@
   import { Toggle } from '$lib/components/ui/toggle'
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
-  import { formatAlphaAdvantage, formatPolygon } from '$lib/data'
-  import * as db from '$lib/db'
+  import * as config from '$lib/config'
+  import { formatPolygon } from '$lib/data'
+  import * as db from '$lib/database'
   import { openConfigDir } from '$lib/file-system'
-  import { notifyNative, notifyWeb } from '$lib/notifications'
-  import { getValue, setValue, store } from '$lib/stores/stores'
+  import notify from '$lib/notifications'
+  import { addToPortfolio } from '$lib/portfolio'
+  import * as stores from '$lib/stores/stores'
   import { getCurrent } from '@tauri-apps/api/window'
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
@@ -49,31 +51,14 @@
     }
   }
 
-  type Stock = {
-    name: string
-    ticker: string
-    price: number[]
-  }
-
-  let stocks: Stock[] = [
-    {
-      name: 'Google',
-      ticker: 'GOOG',
-      price: [17.55, 50.0],
-    },
-    {
-      name: 'Apple',
-      ticker: 'APPL',
-      price: [-100, -69.99],
-    },
-    {
-      name: 'Meta',
-      ticker: 'META',
-      price: [0, 0],
-    },
-  ]
-
-  let search = ''
+  let tickers = db.tickers
+  let tickersCodes =
+    'T.' +
+    tickers
+      .map(item => {
+        return item.ticker_name
+      })
+      .join(',')
 
   type Tabs = 'home' | 'search' | 'settings'
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
@@ -82,30 +67,33 @@
     checkedAlphaVantage = checkedPolygon = false
   }
 
-  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' ?? true
+  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' || true
+  let useNativeNotifications = localStorage.getItem('use-native-notifications') === 'true' || true
   $: {
     changeAlwaysOnTop(alwaysOnTop)
+    changeNativeNotifications(useNativeNotifications)
   }
-
   async function changeAlwaysOnTop(value: boolean) {
     await appWindow.setAlwaysOnTop(value)
     localStorage.setItem('always-on-top', alwaysOnTop.toString())
   }
+  async function changeNativeNotifications(value: boolean) {
+    localStorage.setItem('use-native-notifications', useNativeNotifications.toString())
+  }
 
   let apiKeyAlphaVantage: string
   let apiKeyPolygon: string
-  $: {
-    setValue(store, 'api-key-alpha-vantage', apiKeyAlphaVantage)
-    setValue(store, 'api-key-polygon', apiKeyPolygon)
-  }
   onMount(async () => {
-    apiKeyAlphaVantage = (await getValue(store, 'api-key-alpha-vantage')) as string
-    apiKeyPolygon = (await getValue(store, 'api-key-polygon')) as string
+    apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
+    apiKeyPolygon = config.API_KEY_POLYGON as string
   })
+  $: {
+    stores.setValue(stores.settingsStore, 'api-key-alpha-vantage', apiKeyAlphaVantage)
+    stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
+  }
 
+  let search = ''
   let searchData = mockSearch.results.map(formatPolygon)
-
-  // TODO: implement Alpha Vantage
   type APIEndpoint = 'alpha-vantage' | 'polygon'
   let apiEndpoint: APIEndpoint = 'polygon'
   let api = apiPolygon
@@ -123,41 +111,14 @@
   const onSearch = debounce(async () => {
     const data = await api.search(search)
     const processed = data.map(formatPolygon)
-    console.log(`🚀 ~ onSearch ~ processed:`, processed)
     searchData = processed
   }, 3000)
 
   let selectedItem = {}
-
-  const portfolio = new Map()
-  async function addToPortfolio() {
-    // @ts-ignore
-    // TODO: type API responses
-    const key = selectedItem?.ticker
-    if (!key || portfolio.has(key)) {
-      return
-    }
-    portfolio.set(key, selectedItem)
-    notify('Success!', `'${key}' has been added to the portfolio.`)
+  export async function addTicker() {
+    await addToPortfolio(selectedItem)
     selectedItem = {}
   }
-
-  let useNativeNotification = true
-  function notify(title: string, body: string) {
-    if (useNativeNotification) {
-      notifyNative(title, body)
-    } else {
-      notifyWeb(title, body)
-    }
-  }
-
-  // function removeFromPortfolio() {
-  //   const key = selectedItem?.symbol
-  //   if (!key || !portfolio.has(key)) {
-  //     return
-  //   }
-  //   portfolio.delete(key)
-  // }
 
   let checkedAlphaVantage = false
   let checkedPolygon = false
@@ -184,26 +145,26 @@
         <Card.Content class="space-y-2">
           <div class="w-full flex flex-col gap-2 items-center">
             <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
-              {#each stocks as item (item.ticker)}
-                {@const price = (item.price?.at(0) ?? 0) + (item.price?.at(-1) ?? 0)}
-                {@const changeType = getChangeType(price)}
-                {@const badgeVariant = getBadgeVariant(changeType)}
+              {#each tickers as item (item.ticker_name)}
+                <!-- {@const price = (item.price?.at(0) ?? 0) + (item.price?.at(-1) ?? 0)} -->
+                <!-- {@const changeType = getChangeType(price)} -->
+                <!-- {@const badgeVariant = getBadgeVariant(changeType)} -->
 
                 <li class="w-full flex justify-between pt-2">
                   <span class="col-span-7">
                     <Badge variant="default" class="text-blue-900 bg-blue-200">
                       <Small>
-                        {item.ticker}
+                        {item.ticker_name}
                       </Small>
                     </Badge>
                     <div class="pl-2">
                       <Small>
-                        {item.name}
+                        {item.ticker_long_name}
                       </Small>
                     </div>
                   </span>
 
-                  <span class="grid grid-cols-2 gap-3 justify-center items-center">
+                  <!-- <span class="grid grid-cols-2 gap-3 justify-center items-center">
                     <span class="text-right">{item.price.at(-1)}</span>
                     <Badge variant={badgeVariant} class="flex justify-between w-16">
                       <span>
@@ -220,7 +181,7 @@
                       </span>
                       <span>%</span></Badge
                     >
-                    <!-- <span
+                    <span
                       class={cn(
                         'rounded p-1 text-white flex justify-between gap-0 bold',
                         changeType === 'increment' && 'bg-green-500',
@@ -228,8 +189,8 @@
                         changeType === 'no-change' && 'bg-grey-500',
                       )}
                     >
-                    </span> -->
-                  </span>
+                    </span>
+                  </span> -->
                 </li>
               {/each}
             </ul>
@@ -284,7 +245,7 @@
           </div>
 
           <div class="flex items-center space-x-2">
-            <Switch id="native-notifications" class="" bind:checked={useNativeNotification} disabled />
+            <Switch id="native-notifications" class="" bind:checked={useNativeNotifications} disabled />
             <Label for="native-notifications">Use native notifications</Label>
           </div>
 

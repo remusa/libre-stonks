@@ -21,4 +21,4 @@ export async function getValue(store: Store, key: string) {
 	return val
 }
 
-export const store = createStore('.settings.dat')
+export const settingsStore = createStore('.settings.dat')

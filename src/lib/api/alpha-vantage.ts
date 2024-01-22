@@ -1,13 +1,13 @@
+import { API_KEY_ALPHA_VANTAGE } from '$lib/config'
 import { formatAlphaAdvantage } from '../data'
-import { getValue, store } from '../stores/stores'
 
-const API_KEY = await getValue(store, 'api-key-alpha-vantage')
+// TODO: implement Alpha Vantage
 const ENDPOINT = 'https://www.alphavantage.co'
 
 export async function search(keywords: string) {
 	try {
 		const response = await fetch(
-			`${ENDPOINT}SYMBOL_SEARCH&keywords=${keywords}&apikey=${API_KEY}`,
+			`${ENDPOINT}SYMBOL_SEARCH&keywords=${keywords}&apikey=${API_KEY_ALPHA_VANTAGE}`,
 			{
 				method: 'GET',
 			},
@@ -31,7 +31,7 @@ export async function search(keywords: string) {
 export async function getSymbol(ticker: string) {
 	try {
 		const response = await fetch(
-			`${ENDPOINT}/query?function=SYMBOL_SEARCH&keywords=${ticker}&apikey=${API_KEY}`,
+			`${ENDPOINT}/query?function=SYMBOL_SEARCH&keywords=${ticker}&apikey=${API_KEY_ALPHA_VANTAGE}`,
 			{
 				method: 'GET',
 			},

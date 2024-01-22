@@ -1,7 +1,6 @@
-import { formatPolygon } from '../data'
-import { getValue, store } from '../stores/stores'
+import { API_KEY_POLYGON } from '$lib/config'
+import { formatPolygon } from '$lib/data'
 
-const API_KEY_POLYGON = await getValue(store, 'api-key-polygon')
 const ENDPOINT = 'https://api.polygon.io/v3/reference'
 
 export async function search(keywords: string) {
