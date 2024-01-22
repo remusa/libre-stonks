@@ -29,13 +29,15 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"resizable": false,
+				"resizable": true,
 				"alwaysOnTop": true,
 				"decorations": true,
 				"transparent": false,
 				"title": "Stonks",
 				"width": 400,
-				"height": 700
+				"height": 700,
+				"minWidth": 400,
+				"minHeight": 700
 			}
 		],
 		"macOSPrivateApi": true
