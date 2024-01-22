@@ -13,8 +13,8 @@
   import { Toggle } from '$lib/components/ui/toggle'
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
-  import { getAlphaAdvantage } from '$lib/data'
-  import { selectUsers } from '$lib/db'
+  import { formatAlphaAdvantage, formatPolygon } from '$lib/data'
+  import * as db from '$lib/db'
   import { openConfigDir } from '$lib/file-system'
   import { notifyNative, notifyWeb } from '$lib/notifications'
   import { getValue, setValue, store } from '$lib/stores/stores'
@@ -23,7 +23,7 @@
   import { Eye, EyeOff } from 'lucide-svelte'
   import { onMount } from 'svelte'
   import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
-  import mockSearch from './mock/search.json'
+  import mockSearch from './mock/search-polygon.json'
 
   const appWindow = getCurrent()
 
@@ -101,10 +101,9 @@
   onMount(async () => {
     apiKeyAlphaVantage = (await getValue(store, 'api-key-alpha-vantage')) as string
     apiKeyPolygon = (await getValue(store, 'api-key-polygon')) as string
-    const users = await selectUsers()
   })
 
-  let searchData = mockSearch.map(getAlphaAdvantage)
+  let searchData = mockSearch.results.map(formatPolygon)
 
   // TODO: implement Alpha Vantage
   type APIEndpoint = 'alpha-vantage' | 'polygon'
@@ -122,8 +121,10 @@
   }
 
   const onSearch = debounce(async () => {
-    const data = await api.findSymbol(search)
-    searchData = data
+    const data = await api.search(search)
+    const processed = data.map(formatPolygon)
+    console.log(`🚀 ~ onSearch ~ processed:`, processed)
+    searchData = processed
   }, 3000)
 
   let selectedItem = {}
@@ -132,7 +133,7 @@
   async function addToPortfolio() {
     // @ts-ignore
     // TODO: type API responses
-    const key = selectedItem?.symbol
+    const key = selectedItem?.ticker
     if (!key || portfolio.has(key)) {
       return
     }
@@ -250,7 +251,7 @@
       <Card.Root>
         <Card.Header>
           <Card.Title>Search</Card.Title>
-          <Card.Description>Add stonks here. Click save when you're done.</Card.Description>
+          <Card.Description>Add stonks here.</Card.Description>
         </Card.Header>
         <Card.Content class="space-y-2">
           <div class="space-y-1">
@@ -284,7 +285,7 @@
           </div>
 
           <div class="flex items-center space-x-2">
-            <Switch id="native-notifications" class="" bind:checked={useNativeNotification} />
+            <Switch id="native-notifications" class="" bind:checked={useNativeNotification} disabled />
             <Label for="native-notifications">Use native notifications</Label>
           </div>
 

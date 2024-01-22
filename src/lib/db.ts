@@ -1,6 +1,6 @@
 import Database from '@tauri-apps/plugin-sql'
 
-export const db = await Database.load('sqlite:data.db')
+const db = await Database.load('sqlite:data.db')
 
 export async function selectUsers() {
 	const data = await db.select('SELECT * FROM users')

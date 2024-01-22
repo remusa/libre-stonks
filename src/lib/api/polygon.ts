@@ -1,47 +1,47 @@
-import { getAlphaAdvantage } from '../data'
+import { formatPolygon } from '../data'
 import { getValue, store } from '../stores/stores'
 
-const API_KEY = await getValue(store, 'api-key-polygon')
-const ENDPOINT = 'https://api.polygon.io/v2'
+const API_KEY_POLYGON = await getValue(store, 'api-key-polygon')
+const ENDPOINT = 'https://api.polygon.io/v3/reference'
 
-async function findSymbol(keywords: string) {
+async function search(keywords: string) {
 	try {
-		const response = await fetch(
-			`${ENDPOINT}SYMBOL_SEARCH&keywords=${keywords}&apikey=${API_KEY}`,
-			{
-				method: 'GET',
-			},
-		)
-		if (response.status !== 200) {
-			throw Error('Response failed')
+		const apiUrl = `https://api.polygon.io/v3/reference/tickers?search=${keywords}&active=true&apiKey=${API_KEY_POLYGON}`
+		const response = await fetch(apiUrl, { method: 'GET' })
+		if (!response.ok) {
+			throw Error(response.statusText)
 		}
 		const json = await response.json()
-		const data = json?.bestMatches.map(getAlphaAdvantage) ?? []
+		const data = json?.results.map(formatPolygon) ?? []
 		return data
-	} catch (e) {
-		console.log('🚀 ~ getSymbol ~ e:', e)
-		return []
+	} catch (error) {
+		if (error instanceof SyntaxError) {
+			// Unexpected token < in JSON
+			console.log('There was a SyntaxError', error)
+		} else {
+			console.log('There was an error', error)
+		}
 	}
 }
 
 async function getSymbol(ticker: string) {
 	try {
-		const response = await fetch(
-			`${ENDPOINT}/aggs/ticker/${ticker}/range/1/day/2023-01-09/2023-01-09?adjusted=true&sort=asc&limit=120&apiKey=${API_KEY}`,
-			{
-				method: 'GET',
-			},
-		)
-		if (response.status !== 200) {
+		const apiUrl = `${ENDPOINT}/reference/tickers?apiKey=${API_KEY_POLYGON}}&ticker=${ticker}}`
+		const response = await fetch(apiUrl, { method: 'GET' })
+		if (!response.ok) {
 			throw Error('Response failed')
 		}
 		const json = await response.json()
-		const data = json?.bestMatches.map(getAlphaAdvantage) ?? []
+		const data = json?.results.map(formatPolygon) ?? []
 		return data
-	} catch (e) {
-		console.log('🚀 ~ getSymbol ~ e:', e)
-		return []
+	} catch (error) {
+		if (error instanceof SyntaxError) {
+			// Unexpected token < in JSON
+			console.log('There was a SyntaxError', error)
+		} else {
+			console.log('There was an error', error)
+		}
 	}
 }
 
-export { findSymbol, getSymbol }
+export { getSymbol, search }
