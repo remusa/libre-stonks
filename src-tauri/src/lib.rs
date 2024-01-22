@@ -98,6 +98,7 @@ pub fn run() {
             CREATE TABLE ticker (
                 ticker_id INTEGER PRIMARY KEY,
                 ticker_name TEXT NOT NULL,
+                ticker_long_name TEXT NOT NULL,
                 market_id INTEGER,
                 currency_id INTEGER,
                 FOREIGN KEY (market_id) REFERENCES market(market_id),
@@ -119,11 +120,11 @@ pub fn run() {
             INSERT INTO currency (currency_name, currency_code) VALUES ('Euro', 'EUR');
 
             -- Seed data for tickers
-            INSERT INTO ticker (ticker_name, market_id, currency_id) VALUES ('AAPL', 1, 1);
-            INSERT INTO ticker (ticker_name, market_id, currency_id) VALUES ('GOOGL', 1, 1);
-            INSERT INTO ticker (ticker_name, market_id, currency_id) VALUES ('FB', 1, 1);
-            INSERT INTO ticker (ticker_name, market_id, currency_id) VALUES ('AMZN', 1, 1);
-            INSERT INTO ticker (ticker_name, market_id, currency_id) VALUES ('NFLX', 1, 1);
+            INSERT INTO ticker (ticker_name, ticker_long_name, market_id, currency_id) VALUES ('AAPL', 'Apple Inc.', 1, 1);
+            INSERT INTO ticker (ticker_name, ticker_long_name, market_id, currency_id) VALUES ('GOOGL', 'Alphabet Inc.', 1, 1);
+            INSERT INTO ticker (ticker_name, ticker_long_name, market_id, currency_id) VALUES ('FB', 'Meta Platforms, Inc.', 1, 1);
+            INSERT INTO ticker (ticker_name, ticker_long_name, market_id, currency_id) VALUES ('AMZN', 'Amazon.com Inc.', 1, 1);
+            INSERT INTO ticker (ticker_name, ticker_long_name, market_id, currency_id) VALUES ('NFLX', 'Netflix Inc.', 1, 1);
             ",
             kind: MigrationKind::Up,
         },
