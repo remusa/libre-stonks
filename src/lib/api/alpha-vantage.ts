@@ -4,7 +4,7 @@ import { getValue, store } from '../stores/stores'
 const API_KEY = await getValue(store, 'api-key-alpha-vantage')
 const ENDPOINT = 'https://www.alphavantage.co'
 
-async function search(keywords: string) {
+export async function search(keywords: string) {
 	try {
 		const response = await fetch(
 			`${ENDPOINT}SYMBOL_SEARCH&keywords=${keywords}&apikey=${API_KEY}`,
@@ -28,7 +28,7 @@ async function search(keywords: string) {
 	}
 }
 
-async function getSymbol(ticker: string) {
+export async function getSymbol(ticker: string) {
 	try {
 		const response = await fetch(
 			`${ENDPOINT}/query?function=SYMBOL_SEARCH&keywords=${ticker}&apikey=${API_KEY}`,
@@ -51,5 +51,3 @@ async function getSymbol(ticker: string) {
 		}
 	}
 }
-
-export { getSymbol, search }

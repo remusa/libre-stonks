@@ -4,7 +4,7 @@ import { getValue, store } from '../stores/stores'
 const API_KEY_POLYGON = await getValue(store, 'api-key-polygon')
 const ENDPOINT = 'https://api.polygon.io/v3/reference'
 
-async function search(keywords: string) {
+export async function search(keywords: string) {
 	try {
 		const apiUrl = `https://api.polygon.io/v3/reference/tickers?search=${keywords}&active=true&apiKey=${API_KEY_POLYGON}`
 		const response = await fetch(apiUrl, { method: 'GET' })
@@ -24,7 +24,7 @@ async function search(keywords: string) {
 	}
 }
 
-async function getSymbol(ticker: string) {
+export async function getSymbol(ticker: string) {
 	try {
 		const apiUrl = `${ENDPOINT}/reference/tickers?apiKey=${API_KEY_POLYGON}}&ticker=${ticker}}`
 		const response = await fetch(apiUrl, { method: 'GET' })
@@ -43,5 +43,3 @@ async function getSymbol(ticker: string) {
 		}
 	}
 }
-
-export { getSymbol, search }
