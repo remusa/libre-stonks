@@ -14,7 +14,7 @@
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import * as config from '$lib/config'
-  import { formatPolygon } from '$lib/data'
+  import * as dataProcessing from '$lib/data-processing'
   import * as db from '$lib/database'
   import { openConfigDir } from '$lib/file-system'
   import notify from '$lib/notifications'
@@ -51,15 +51,6 @@
     }
   }
 
-  let tickers = db.tickers
-  let tickersCodes =
-    'T.' +
-    tickers
-      .map(item => {
-        return item.ticker_name
-      })
-      .join(',')
-
   type Tabs = 'home' | 'search' | 'settings'
   let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
   $: {
@@ -92,8 +83,6 @@
     stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
   }
 
-  let search = ''
-  let searchData = mockSearch.results.map(formatPolygon)
   type APIEndpoint = 'alpha-vantage' | 'polygon'
   let apiEndpoint: APIEndpoint = 'polygon'
   let api = apiPolygon
@@ -108,11 +97,18 @@
     }
   }
 
+  let search = ''
+  let searchData = mockSearch.results.map(dataProcessing.formatPolygon)
   const onSearch = debounce(async () => {
     const data = await api.search(search)
-    const processed = data.map(formatPolygon)
+    const processed = data.map(dataProcessing.formatPolygon)
     searchData = processed
   }, 3000)
+
+  let tickers = db.tickers
+  const onUpdate = debounce(async () => {
+    const data = await api.update(tickers)
+  })
 
   let selectedItem = {}
   export async function addTicker() {
@@ -197,12 +193,7 @@
           </div>
         </Card.Content>
         <Card.Footer>
-          <Button
-            variant="default"
-            on:click={function () {
-              console.log('updating')
-            }}>Update</Button
-          >
+          <Button variant="default" on:click={onUpdate}>Update</Button>
         </Card.Footer>
       </Card.Root>
     </Tabs.Content>

@@ -1,3 +1,5 @@
+import type { TickerDataType } from './types'
+
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function formatAlphaAdvantage(data: any) {
 	return {
@@ -8,7 +10,7 @@ export function formatAlphaAdvantage(data: any) {
 		timezone: data['7. timezone'],
 		currency: data['8. currency'],
 		// for search
-		value: `${data['1. symbol']}-${data['2. name']}`,
+		value: `${data['1. symbol']} ${data['2. name']}`,
 		label: data['2. name'],
 	}
 }
@@ -30,7 +32,11 @@ export function formatPolygon(data: any) {
 		last_updated_utc: data.last_updated_utc,
 		source_feed: data.source_feed,
 		// for search
-		value: `${data.ticker}-${data.name}`,
+		value: `${data.ticker} ${data.name}`,
 		label: data.name,
 	}
+}
+
+export function getTickerList(tickers: TickerDataType[]) {
+	return tickers.map((item) => item.ticker_name).join(',')
 }
