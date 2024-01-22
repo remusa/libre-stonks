@@ -26,6 +26,9 @@ dependencies:
   '@tauri-apps/plugin-store':
     specifier: 2.0.0-alpha.5
     version: 2.0.0-alpha.5
+  '@tauri-apps/plugin-stronghold':
+    specifier: 2.0.0-alpha.6
+    version: 2.0.0-alpha.6
   '@tauri-apps/plugin-websocket':
     specifier: 2.0.0-alpha.5
     version: 2.0.0-alpha.5
@@ -1103,6 +1106,12 @@ packages:
 
   /@tauri-apps/plugin-store@2.0.0-alpha.5:
     resolution: {integrity: sha512-n20kHSQwfoRf0p8mRuntba1WuPTMJwurs0veDSGoet87Woo8jdFdSBE30y4vpTzMr2Z8dvw0B0Xbh/Jxxisybg==}
+    dependencies:
+      '@tauri-apps/api': 2.0.0-alpha.13
+    dev: false
+
+  /@tauri-apps/plugin-stronghold@2.0.0-alpha.6:
+    resolution: {integrity: sha512-iWArLHnUwpwpOvadUXB0IIJJpNO9bQEBJbE2qaTrrr402n1s5KcaOtagukymcz55yZmORN/UZrcXWMl53gA78Q==}
     dependencies:
       '@tauri-apps/api': 2.0.0-alpha.13
     dev: false

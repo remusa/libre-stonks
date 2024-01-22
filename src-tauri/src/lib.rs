@@ -1,3 +1,7 @@
+// use argon2::{
+//     password_hash::{rand_core::OsRng, SaltString},
+//     Argon2, PasswordHasher,
+// };
 #[cfg(target_os = "linux")]
 use fork::{daemon, Fork};
 use std::fs;
@@ -142,6 +146,10 @@ pub fn run() {
                 .add_migrations("sqlite:data.db", migrations)
                 .build(),
         )
+        // .plugin(tauri_plugin_stronghold::Builder::new(|password| {
+        //     // TODO: hash the password here with e.g. argon2, blake2b or any other secure algorithm
+        //     todo!()
+        // })
         .invoke_handler(tauri::generate_handler![show_in_folder])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
