@@ -112,6 +112,35 @@
     stores.setValue(stores.settingsStore, 'api-endpoint', apiEndpoint)
   }
 
+  const currentDate = new Date()
+  let isHoliday = isStockMarketHoliday(currentDate)
+  let isMarketOpen = isStockMarketOpen(currentDate)
+
+  function isStockMarketHoliday(date: Date) {
+    // Check if today is a market holiday
+    const formattedDate = date.toISOString().split('T')[0] // Get the date in "YYYY-MM-DD" format
+    const checkIsHoliday = marketHolidays.some(holiday => holiday.date === formattedDate)
+    return checkIsHoliday
+  }
+
+  function isStockMarketOpen(date: Date) {
+    // Check if it's a weekend (Saturday or Sunday)
+    const dayOfWeek = date.getDay()
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return false
+    }
+
+    // Check if the time is within typical trading hours (9:30 AM - 4:00 PM)
+    const hours = date.getHours()
+    const minutes = date.getMinutes()
+    const currentTimeInMinutes = hours * 60 + minutes
+
+    const marketOpenTimeInMinutes = 9 * 60 + 30 // 9:30 AM
+    const marketCloseTimeInMinutes = 16 * 60 // 4:00 PM
+
+    return currentTimeInMinutes >= marketOpenTimeInMinutes && currentTimeInMinutes <= marketCloseTimeInMinutes
+  }
+
   let search = ''
   let searchData = mockSearch.results.map(dataProcessing.formatPolygon)
   const onSearch = debounce(async () => {
@@ -141,12 +170,12 @@
   let checkedIexCloud = false
 </script>
 
-<main class="flex flex-col items-center justify-start w-screen h-screen py-1 px-4 rounded-3xl shadow-3xl m-0 gap-2">
-  <header>
+<main class="flex flex-col items-center justify-start w-screen h-screen p-2 rounded-3xl shadow-3xl m-0 gap-2">
+  <!-- <header>
     <HeadingH1>Libre Stonks</HeadingH1>
-  </header>
+  </header> -->
 
-  <Tabs.Root bind:value={tab} class="w-full h-full">
+  <Tabs.Root bind:value={tab} class="w-full h-screen">
     <Tabs.List class="grid w-full grid-cols-3">
       <Tabs.Trigger value="home">Home</Tabs.Trigger>
       <Tabs.Trigger value="search">Search</Tabs.Trigger>
@@ -161,9 +190,9 @@
             <span><Clock /></span>
             <span class="flex justify-end gap-2 flex-grow">
               <span>US market</span>
-              <Badge variant={marketOpen ? 'default' : 'destructive'} class={cn(marketOpen && 'bg-green-500')}>
+              <Badge variant={isMarketOpen ? 'default' : 'destructive'} class={cn(isMarketOpen && 'bg-green-500')}>
                 <Small>
-                  {marketOpen ? 'open' : 'closed'}
+                  {isMarketOpen ? 'open' : 'closed'}
                 </Small>
               </Badge>
             </span>

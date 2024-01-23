@@ -66,3 +66,23 @@ export async function update(tickers: TickerDataType[]) {
 		return []
 	}
 }
+
+// const year = new Date().getFullYear()
+
+// export async function getMarketHolidays() {
+// 	try {
+// 		const response = await fetch(
+// 			`https://cloud.iexapis.com/stable/ref-data/us/dates/holidays/${year}?token=${apiKey}`,
+// 		)
+// 		if (!response.ok) {
+// 			throw new Error(`HTTP error! Status: ${response.status}`)
+// 		}
+
+// 		const holidays = await response.json()
+// 		console.log('Market Holidays:', holidays)
+// 		return holidays
+// 	} catch (error) {
+// 		console.error('Error fetching market holidays:', error.message)
+// 		return []
+// 	}
+// }
