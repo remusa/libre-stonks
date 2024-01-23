@@ -1,4 +1,3 @@
-// @ts-ignore
 import { type ClassValue, clsx } from 'clsx'
 import { cubicOut } from 'svelte/easing'
 import type { TransitionConfig } from 'svelte/transition'

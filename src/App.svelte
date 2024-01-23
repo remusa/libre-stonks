@@ -188,8 +188,7 @@
                               {item.companyName}
                             </div>
                           </Small>
-                        </div></Tooltip.Trigger
-                      >
+                        </div></Tooltip.Trigger>
                       <Tooltip.Content>
                         <p>{item.companyName}</p>
                       </Tooltip.Content>
@@ -214,8 +213,7 @@
                           {' '}
                         {/if}
                       </span>
-                      {item.changePercent}%</Badge
-                    >
+                      {item.changePercent}%</Badge>
                     <!-- <span
                       class={cn(
                         'rounded p-1 text-white flex justify-between gap-0 bold',
@@ -308,16 +306,14 @@
                   <Input
                     id="api-key-alpha-vantage"
                     bind:value={apiKeyAlphaVantage}
-                    disabled={apiEndpoint !== 'alpha-vantage'}
-                  />
+                    disabled={apiEndpoint !== 'alpha-vantage'} />
                 {:else}
                   <Input
                     id="api-key-alpha-vantage"
                     bind:value={apiKeyAlphaVantage}
                     type="password"
                     checked={checkedAlphaVantage}
-                    disabled={apiEndpoint !== 'alpha-vantage'}
-                  />
+                    disabled={apiEndpoint !== 'alpha-vantage'} />
                 {/if}
                 <Toggle
                   class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
@@ -325,8 +321,7 @@
                   size="sm"
                   variant="default"
                   bind:pressed={checkedAlphaVantage}
-                  aria-label="toggle bold"
-                >
+                  aria-label="toggle bold">
                   {#if checkedAlphaVantage}
                     <EyeOff class="h-4 w-4" />
                   {:else}
@@ -347,8 +342,7 @@
                     bind:value={apiKeyPolygon}
                     disabled={apiEndpoint !== 'polygon'}
                     type="password"
-                    checked={checkedPolygon}
-                  />
+                    checked={checkedPolygon} />
                 {/if}
                 <Toggle
                   class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
@@ -356,8 +350,7 @@
                   size="sm"
                   variant="default"
                   bind:pressed={checkedPolygon}
-                  aria-label="toggle bold"
-                >
+                  aria-label="toggle bold">
                   {#if checkedPolygon}
                     <EyeOff class="h-4 w-4" />
                   {:else}
@@ -378,8 +371,7 @@
                     bind:value={apiKeyIEXCloud}
                     disabled={apiEndpoint !== 'iex-cloud'}
                     type="password"
-                    checked={checkedIexCloud}
-                  />
+                    checked={checkedIexCloud} />
                 {/if}
                 <Toggle
                   class="absolute inset-y-0 top-[2px] right-0 mr-1 flex items-center cursor-pointer"
@@ -387,8 +379,7 @@
                   size="sm"
                   variant="default"
                   bind:pressed={checkedIexCloud}
-                  aria-label="toggle bold"
-                >
+                  aria-label="toggle bold">
                   {#if checkedIexCloud}
                     <EyeOff class="h-4 w-4" />
                   {:else}
@@ -404,8 +395,7 @@
           <div class="flex items-center justify-center space-x-2">
             <Button variant="outline" on:click={openConfigDir}>Config</Button>
             <Button variant="outline" on:click={() => notify('Notification', 'Test notification')}
-              >Send test notification</Button
-            >
+              >Send test notification</Button>
           </div>
         </Card.Footer>
       </Card.Root>
