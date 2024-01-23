@@ -18,7 +18,7 @@ export function formatAlphaAdvantage(data: any) {
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function formatPolygon(data: any) {
 	return {
-		ticker: data.ticker,
+		ticker: data.symbol,
 		name: data.name,
 		market: data.market,
 		locale: data.locale,
@@ -32,8 +32,20 @@ export function formatPolygon(data: any) {
 		last_updated_utc: data.last_updated_utc,
 		source_feed: data.source_feed,
 		// for search
-		value: `${data.ticker} ${data.name}`,
+		value: `${data.symbol} ${data.name}`,
 		label: data.name,
+	}
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function formatIexCloud(data: any) {
+	return {
+		...data,
+		ticker: data.symbol,
+		name: data.companyName,
+		// for search
+		value: `${data.symbol} ${data.companyName}`,
+		label: data.companyName,
 	}
 }
 

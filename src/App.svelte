@@ -1,6 +1,8 @@
 <script lang="ts">
   import * as apiAlphaVantage from '$lib/api/alpha-vantage'
+  import * as apiIexCloud from '$lib/api/iexcloud'
   import * as apiPolygon from '$lib/api/polygon'
+  import Clock from '$lib/components/clock.svelte'
   import { Badge } from '$lib/components/ui/badge'
   import { Button } from '$lib/components/ui/button'
   import * as Card from '$lib/components/ui/card'
@@ -11,6 +13,7 @@
   import { Switch } from '$lib/components/ui/switch'
   import * as Tabs from '$lib/components/ui/tabs'
   import { Toggle } from '$lib/components/ui/toggle'
+  import * as Tooltip from '$lib/components/ui/tooltip'
   import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import * as config from '$lib/config'
@@ -20,11 +23,13 @@
   import notify from '$lib/notifications'
   import { addToPortfolio } from '$lib/portfolio'
   import * as stores from '$lib/stores/stores'
+  import { cn } from '$lib/utils'
   import { getCurrent } from '@tauri-apps/api/window'
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
   import { onMount } from 'svelte'
   import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
+  import mockUpdate from './mock/get-data-iex-cloud.json'
   import mockSearch from './mock/search-polygon.json'
 
   const appWindow = getCurrent()
@@ -115,8 +120,12 @@
   }, 3000)
 
   let tickers = db.tickers
+  let updateData = mockUpdate.map(dataProcessing.formatIexCloud)
+  let marketOpen = false
   const onUpdate = debounce(async () => {
     const data = await api.update(tickers)
+    updateData = data
+    marketOpen = updateData?.at(0)?.isUSMarketOpen || false
   })
 
   let selectedItem = {}
@@ -125,14 +134,16 @@
     selectedItem = {}
   }
 
+  let portfolio = 'main'
+
   let checkedAlphaVantage = false
   let checkedPolygon = false
   let checkedIexCloud = false
 </script>
 
-<main class="flex flex-col items-center justify-start w-screen h-screen p-4 rounded-3xl shadow-3xl m-0 gap-2">
+<main class="flex flex-col items-center justify-start w-screen h-screen py-1 px-4 rounded-3xl shadow-3xl m-0 gap-2">
   <header>
-    <HeadingH1>Stonks</HeadingH1>
+    <HeadingH1>Libre Stonks</HeadingH1>
   </header>
 
   <Tabs.Root bind:value={tab} class="w-full h-full">
@@ -146,48 +157,66 @@
       <Card.Root>
         <Card.Header>
           <Card.Title>My Stonks</Card.Title>
-          <Card.Description>Default Portfolio.</Card.Description>
+          <Card.Description class="flex justify-between items-end w-full space-y-2">
+            <span><Clock /></span>
+            <span class="flex justify-end gap-2 flex-grow">
+              <span>US market</span>
+              <Badge variant={marketOpen ? 'default' : 'destructive'} class={cn(marketOpen && 'bg-green-500')}>
+                <Small>
+                  {marketOpen ? 'open' : 'closed'}
+                </Small>
+              </Badge>
+            </span>
+          </Card.Description>
         </Card.Header>
         <Card.Content class="space-y-2">
           <div class="w-full flex flex-col gap-2 items-center">
-            <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
-              {#each tickers as item (item.ticker_name)}
-                <!-- {@const price = (item.price?.at(0) ?? 0) + (item.price?.at(-1) ?? 0)} -->
-                <!-- {@const changeType = getChangeType(price)} -->
-                <!-- {@const badgeVariant = getBadgeVariant(changeType)} -->
+            <Small>Portfolio: {portfolio}</Small>
 
+            <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
+              {#each updateData as item}
+                {@const price = item.latestPrice}
+                {@const changeType = getChangeType(price)}
+                {@const badgeVariant = getBadgeVariant(changeType)}
                 <li class="w-full flex justify-between pt-2">
                   <span class="col-span-7">
+                    <Tooltip.Root openDelay={100}>
+                      <Tooltip.Trigger>
+                        <div class="pl-1">
+                          <Small>
+                            <div class="text-left truncate w-40">
+                              {item.companyName}
+                            </div>
+                          </Small>
+                        </div></Tooltip.Trigger
+                      >
+                      <Tooltip.Content>
+                        <p>{item.companyName}</p>
+                      </Tooltip.Content>
+                    </Tooltip.Root>
                     <Badge variant="default" class="text-blue-900 bg-blue-200">
                       <Small>
-                        {item.ticker_name}
+                        {item.ticker}
                       </Small>
                     </Badge>
-                    <div class="pl-2">
-                      <Small>
-                        {item.ticker_long_name}
-                      </Small>
-                    </div>
                   </span>
 
-                  <!-- <span class="grid grid-cols-2 gap-3 justify-center items-center">
-                    <span class="text-right">{item.price.at(-1)}</span>
-                    <Badge variant={badgeVariant} class="flex justify-between w-16">
+                  <span class="grid grid-cols-2 gap-3 justify-center items-center">
+                    <span class="text-right">{price}</span>
+                    <span class="text-right">{item.change}</span>
+                    <Badge variant={badgeVariant} class="flex justify-center w-16">
                       <span>
-                        {#if changeType === 'increment'}
+                        {#if price > 0}
                           +
-                        {:else if changeType === 'decrement'}
+                        {:else if price < 0}
                           -
                         {:else}
                           {' '}
                         {/if}
                       </span>
-                      <span>
-                        {Math.abs(item.price?.at(-1) ?? 0)}
-                      </span>
-                      <span>%</span></Badge
+                      {item.changePercent}%</Badge
                     >
-                    <span
+                    <!-- <span
                       class={cn(
                         'rounded p-1 text-white flex justify-between gap-0 bold',
                         changeType === 'increment' && 'bg-green-500',
@@ -195,8 +224,8 @@
                         changeType === 'no-change' && 'bg-grey-500',
                       )}
                     >
-                    </span>
-                  </span> -->
+                    </span> -->
+                  </span>
                 </li>
               {/each}
             </ul>
