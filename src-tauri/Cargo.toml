@@ -11,13 +11,13 @@ edition = "2021"
 
 [lib]
 name = "libre_stocks_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["staticlib", "cdylib", "rlib", "lib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-alpha", features = [] }
+tauri-build = { version = "2.0.0-beta", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-alpha", features = [] }
+tauri = { version = "2.0.0-beta", features = [] }
 tauri-plugin-fs = "2.0.0-alpha"
 tauri-plugin-shell = "2.0.0-alpha"
 tauri-plugin-notification = "2.0.0-alpha.7"

@@ -19,7 +19,8 @@
 		"lint": "nlx @biomejs/biome lint ./src ",
 		"setup:cargo": "cargo install --path ./src-tauri/",
 		"postinstall": "lefthook install",
-		"clean": "nlx rimraf node_modules/ dist/ build/ src-tauri/target/",
+		"clean:frontend": "nlx rimraf node_modules/ dist/ build/",
+		"clean:tauri": "nlx rimraf src-tauri/target/",
 		"commitlint": "npx commitlint --edit '$1'"
 	},
 	"dependencies": {
@@ -53,7 +54,7 @@
 		"@sveltejs/vite-plugin-svelte": "^3.1.0",
 		"@tailwindcss/forms": "^0.5.7",
 		"@tailwindcss/typography": "^0.5.13",
-		"@tauri-apps/cli": "^2.0.0-beta.17",
+		"@tauri-apps/cli": "2.0.0-beta.17",
 		"@tsconfig/svelte": "^5.0.4",
 		"autoprefixer": "^10.4.19",
 		"internal-ip": "^7.0.0",
