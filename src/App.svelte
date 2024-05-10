@@ -14,7 +14,6 @@
   import * as Tabs from '$lib/components/ui/tabs'
   import { Toggle } from '$lib/components/ui/toggle'
   import * as Tooltip from '$lib/components/ui/tooltip'
-  import HeadingH1 from '$lib/components/ui/typography/heading-h1.svelte'
   import Small from '$lib/components/ui/typography/small.svelte'
   import * as config from '$lib/config'
   import * as dataProcessing from '$lib/data-processing'
@@ -23,11 +22,13 @@
   import notify from '$lib/notifications'
   import { addToPortfolio } from '$lib/portfolio'
   import * as stores from '$lib/stores/stores'
+  import { useInterval } from '$lib/use-interval'
   import { cn } from '$lib/utils'
   import { getCurrent } from '@tauri-apps/api/window'
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
   import { onMount } from 'svelte'
+  import marketHolidays from './data/market-holidays.json'
   import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
   import mockUpdate from './mock/get-data-iex-cloud.json'
   import mockSearch from './mock/search-polygon.json'
@@ -93,7 +94,7 @@
 
   type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud'
   let apiEndpoint: APIEndpoint
-  let api = apiPolygon
+  let api = apiIexCloud
   onMount(async () => {
     apiEndpoint = config.API_ENDPOINT as APIEndpoint
   })
@@ -142,22 +143,38 @@
   }
 
   let search = ''
-  let searchData = mockSearch.results.map(dataProcessing.formatPolygon)
-  const onSearch = debounce(async () => {
+  let searchData = mockSearch.results.map(dataProcessing.formatIexCloud)
+
+  async function pollSearch() {
     const data = await api.search(search)
     searchData = data
-  }, 3000)
+  }
+
+  const onSearch = debounce(pollSearch, 3_000)
+
+  let loading = false
+  async function update() {
+    loading = true
+    if (isHoliday) {
+      return
+    }
+    const data = await api.update(tickers)
+    if (!isHoliday) {
+      isMarketOpen = isStockMarketOpen(new Date())
+    }
+    updateData = data
+    loading = false
+  }
+
+  useInterval(update, 60_000)
 
   let tickers = db.tickers
   let updateData = mockUpdate.map(dataProcessing.formatIexCloud)
-  let marketOpen = false
-  const onUpdate = debounce(async () => {
-    const data = await api.update(tickers)
-    updateData = data
-    marketOpen = updateData?.at(0)?.isUSMarketOpen || false
-  })
+
+  const onUpdate = debounce(update, 3000)
 
   let selectedItem = {}
+
   export async function addTicker() {
     await addToPortfolio(selectedItem)
     selectedItem = {}
@@ -207,6 +224,7 @@
                 {@const price = item.latestPrice}
                 {@const changeType = getChangeType(price)}
                 {@const badgeVariant = getBadgeVariant(changeType)}
+
                 <li class="w-full flex justify-between pt-2">
                   <span class="col-span-7">
                     <Tooltip.Root openDelay={100}>
@@ -243,15 +261,6 @@
                         {/if}
                       </span>
                       {item.changePercent}%</Badge>
-                    <!-- <span
-                      class={cn(
-                        'rounded p-1 text-white flex justify-between gap-0 bold',
-                        changeType === 'increment' && 'bg-green-500',
-                        changeType === 'decrement' && 'bg-red-500',
-                        changeType === 'no-change' && 'bg-grey-500',
-                      )}
-                    >
-                    </span> -->
                   </span>
                 </li>
               {/each}
@@ -430,6 +439,10 @@
       </Card.Root>
     </Tabs.Content>
   </Tabs.Root>
+
+  <footer>
+    <Small>Libre Stonks</Small>
+  </footer>
 </main>
 
 <style>

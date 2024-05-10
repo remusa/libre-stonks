@@ -6,13 +6,18 @@
   import { Check, ChevronsUpDown } from 'lucide-svelte'
   import { tick } from 'svelte'
 
-  export let data = []
+  type DataItem = {
+    value?: string
+    label?: string
+  }
+
+  export let data: DataItem[] = []
 
   let open = false
   let value = ''
 
-  export let selectedItem = {}
-  $: selectedItem = data.find(f => f.value === value)
+  export let selectedItem: DataItem = {}
+  $: selectedItem = data?.find(f => f.value === value) as DataItem
   $: selectedValue = selectedItem?.label ?? 'Select a value...'
 
   // We want to refocus the trigger button when the user selects
@@ -33,8 +38,7 @@
       variant="outline"
       role="combobox"
       aria-expanded={open}
-      class="w-[200px] justify-between"
-    >
+      class="w-[200px] justify-between">
       {selectedValue}
       <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
     </Button>
@@ -50,8 +54,7 @@
             onSelect={currentValue => {
               value = currentValue
               closeAndFocusTrigger(ids.trigger)
-            }}
-          >
+            }}>
             <Check class={cn('mr-2 h-4 w-4', value !== item.value && 'text-transparent')} />
             {item.label}
           </Command.Item>
