@@ -17,6 +17,7 @@
 		"fix": "nlx @biomejs/biome check --apply-unsafe ./src",
 		"format": "nlx @biomejs/biome format ./src --write",
 		"lint": "nlx @biomejs/biome lint ./src ",
+		"setup:cargo": "cargo install --path ./src-tauri/",
 		"postinstall": "lefthook install",
 		"clean": "nlx rimraf node_modules/ dist/ build/ src-tauri/target/",
 		"commitlint": "npx commitlint --edit '$1'"
@@ -68,6 +69,6 @@
 		"vite": "^5.2.11"
 	},
 	"volta": {
-		"node": "21.6.0"
+		"node": "22.1.0"
 	}
 }
