@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { Switch as SwitchPrimitive } from "bits-ui";
-	import { cn } from "$lib/utils";
+import { Switch as SwitchPrimitive } from 'bits-ui'
+import { cn } from '$lib/utils'
 
-	type $$Props = SwitchPrimitive.Props;
+type $$Props = SwitchPrimitive.Props
 
-	let className: $$Props["class"] = undefined;
-	export let checked: $$Props["checked"] = undefined;
-	export { className as class };
+let className: $$Props['class'] = undefined
+export let checked: $$Props['checked'] = undefined
+export { className as class }
 </script>
 
 <SwitchPrimitive.Root

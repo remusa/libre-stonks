@@ -1,190 +1,193 @@
 <script lang="ts">
-  import * as apiAlphaVantage from '$lib/api/alpha-vantage'
-  import * as apiIexCloud from '$lib/api/iexcloud'
-  import * as apiPolygon from '$lib/api/polygon'
-  import Clock from '$lib/components/clock.svelte'
-  import { Badge } from '$lib/components/ui/badge'
-  import { Button } from '$lib/components/ui/button'
-  import * as Card from '$lib/components/ui/card'
-  import Combobox from '$lib/components/ui/combobox/combobox.svelte'
-  import { Input } from '$lib/components/ui/input'
-  import { Label } from '$lib/components/ui/label'
-  import * as RadioGroup from '$lib/components/ui/radio-group'
-  import { Switch } from '$lib/components/ui/switch'
-  import * as Tabs from '$lib/components/ui/tabs'
-  import { Toggle } from '$lib/components/ui/toggle'
-  import * as Tooltip from '$lib/components/ui/tooltip'
-  import Small from '$lib/components/ui/typography/small.svelte'
-  import * as config from '$lib/config'
-  import * as dataProcessing from '$lib/data-processing'
-  import * as db from '$lib/database'
-  import { openConfigDir } from '$lib/file-system'
-  import notify from '$lib/notifications'
-  import { addToPortfolio } from '$lib/portfolio'
-  import * as stores from '$lib/stores/stores'
-  import { useInterval } from '$lib/use-interval'
-  import { cn } from '$lib/utils'
-  import { getCurrent } from '@tauri-apps/api/window'
-  import debounce from 'just-debounce-it'
-  import { Eye, EyeOff } from 'lucide-svelte'
-  import { onMount } from 'svelte'
-  import marketHolidays from './data/market-holidays.json'
-  import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
-  import mockUpdate from './mock/get-data-iex-cloud.json'
-  import mockSearch from './mock/search-polygon.json'
+import * as apiAlphaVantage from '$lib/api/alpha-vantage'
+import * as apiIexCloud from '$lib/api/iexcloud'
+import * as apiPolygon from '$lib/api/polygon'
+import Clock from '$lib/components/clock.svelte'
+import { Badge } from '$lib/components/ui/badge'
+import { Button } from '$lib/components/ui/button'
+import * as Card from '$lib/components/ui/card'
+import Combobox from '$lib/components/ui/combobox/combobox.svelte'
+import { Input } from '$lib/components/ui/input'
+import { Label } from '$lib/components/ui/label'
+import * as RadioGroup from '$lib/components/ui/radio-group'
+import { Switch } from '$lib/components/ui/switch'
+import * as Tabs from '$lib/components/ui/tabs'
+import { Toggle } from '$lib/components/ui/toggle'
+import * as Tooltip from '$lib/components/ui/tooltip'
+import Small from '$lib/components/ui/typography/small.svelte'
+import * as config from '$lib/config'
+import * as dataProcessing from '$lib/data-processing'
+import * as db from '$lib/database'
+import { openConfigDir } from '$lib/file-system'
+import notify from '$lib/notifications'
+import { addToPortfolio } from '$lib/portfolio'
+import * as stores from '$lib/stores/stores'
+import { useInterval } from '$lib/use-interval'
+import { cn } from '$lib/utils'
+import { getCurrent } from '@tauri-apps/api/window'
+import debounce from 'just-debounce-it'
+import { Eye, EyeOff } from 'lucide-svelte'
+import { onMount } from 'svelte'
+import marketHolidays from './data/market-holidays.json'
+import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
+import mockUpdate from './mock/get-data-iex-cloud.json'
+import mockSearch from './mock/search-polygon.json'
 
-  const appWindow = getCurrent()
+const appWindow = getCurrent()
 
-  type Price = 'increment' | 'decrement' | 'no-change'
+type Price = 'increment' | 'decrement' | 'no-change'
 
-  function getChangeType(price: number): Price {
-    if (price < 0) {
-      return 'decrement'
-    } else if (price > 0) {
-      return 'increment'
-    } else {
-      return 'no-change'
-    }
-  }
+function getChangeType(price: number): Price {
+	if (price < 0) {
+		return 'decrement'
+	} else if (price > 0) {
+		return 'increment'
+	} else {
+		return 'no-change'
+	}
+}
 
-  function getBadgeVariant(changeType: Price) {
-    if (changeType === 'increment') {
-      return 'default'
-    } else if (changeType === 'decrement') {
-      return 'destructive'
-    } else {
-      return 'outline'
-    }
-  }
+function getBadgeVariant(changeType: Price) {
+	if (changeType === 'increment') {
+		return 'default'
+	} else if (changeType === 'decrement') {
+		return 'destructive'
+	} else {
+		return 'outline'
+	}
+}
 
-  type Tabs = 'home' | 'search' | 'settings'
-  let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
-  $: {
-    localStorage.setItem('tab', tab)
-    checkedAlphaVantage = checkedPolygon = checkedIexCloud = false
-  }
+type Tabs = 'home' | 'search' | 'settings'
+let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
+$: {
+	localStorage.setItem('tab', tab)
+	checkedAlphaVantage = checkedPolygon = checkedIexCloud = false
+}
 
-  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' || true
-  let useNativeNotifications = localStorage.getItem('use-native-notifications') === 'true' || true
-  $: {
-    changeAlwaysOnTop(alwaysOnTop)
-    changeNativeNotifications(useNativeNotifications)
-  }
-  async function changeAlwaysOnTop(value: boolean) {
-    await appWindow.setAlwaysOnTop(value)
-    localStorage.setItem('always-on-top', alwaysOnTop.toString())
-  }
-  async function changeNativeNotifications(value: boolean) {
-    localStorage.setItem('use-native-notifications', useNativeNotifications.toString())
-  }
+let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' || true
+let useNativeNotifications = localStorage.getItem('use-native-notifications') === 'true' || true
+$: {
+	changeAlwaysOnTop(alwaysOnTop)
+	changeNativeNotifications(useNativeNotifications)
+}
+async function changeAlwaysOnTop(value: boolean) {
+	await appWindow.setAlwaysOnTop(value)
+	localStorage.setItem('always-on-top', alwaysOnTop.toString())
+}
+async function changeNativeNotifications(value: boolean) {
+	localStorage.setItem('use-native-notifications', useNativeNotifications.toString())
+}
 
-  let apiKeyAlphaVantage: string
-  let apiKeyPolygon: string
-  let apiKeyIEXCloud: string
-  onMount(async () => {
-    apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
-    apiKeyPolygon = config.API_KEY_POLYGON as string
-    apiKeyIEXCloud = config.API_KEY_IEX_CLOUD as string
-  })
-  $: {
-    stores.setValue(stores.settingsStore, 'api-key-alpha-vantage', apiKeyAlphaVantage)
-    stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
-    stores.setValue(stores.settingsStore, 'api-key-iex-cloud', apiKeyIEXCloud)
-  }
+let apiKeyAlphaVantage: string
+let apiKeyPolygon: string
+let apiKeyIEXCloud: string
+onMount(async () => {
+	apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
+	apiKeyPolygon = config.API_KEY_POLYGON as string
+	apiKeyIEXCloud = config.API_KEY_IEX_CLOUD as string
+})
+$: {
+	stores.setValue(stores.settingsStore, 'api-key-alpha-vantage', apiKeyAlphaVantage)
+	stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
+	stores.setValue(stores.settingsStore, 'api-key-iex-cloud', apiKeyIEXCloud)
+}
 
-  type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud'
-  let apiEndpoint: APIEndpoint
-  let api = apiIexCloud
-  onMount(async () => {
-    apiEndpoint = config.API_ENDPOINT as APIEndpoint
-  })
-  $: {
-    switch (apiEndpoint) {
-      case 'alpha-vantage':
-        api = apiAlphaVantage
-        break
-      case 'polygon':
-        api = apiPolygon
-        break
-      case 'iex-cloud':
-        api = apiIexCloud
-        break
-    }
-    stores.setValue(stores.settingsStore, 'api-endpoint', apiEndpoint)
-  }
+type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud'
+let apiEndpoint: APIEndpoint
+let api = apiIexCloud
+onMount(async () => {
+	apiEndpoint = config.API_ENDPOINT as APIEndpoint
+})
+$: {
+	switch (apiEndpoint) {
+		case 'alpha-vantage':
+			api = apiAlphaVantage
+			break
+		case 'polygon':
+			api = apiPolygon
+			break
+		case 'iex-cloud':
+			api = apiIexCloud
+			break
+	}
+	stores.setValue(stores.settingsStore, 'api-endpoint', apiEndpoint)
+}
 
-  const currentDate = new Date()
-  let isHoliday = isStockMarketHoliday(currentDate)
-  let isMarketOpen = isStockMarketOpen(currentDate)
+const currentDate = new Date()
+let isHoliday = isStockMarketHoliday(currentDate)
+let isMarketOpen = isStockMarketOpen(currentDate)
 
-  function isStockMarketHoliday(date: Date) {
-    // Check if today is a market holiday
-    const formattedDate = date.toISOString().split('T')[0] // Get the date in "YYYY-MM-DD" format
-    const checkIsHoliday = marketHolidays.some(holiday => holiday.date === formattedDate)
-    return checkIsHoliday
-  }
+function isStockMarketHoliday(date: Date) {
+	// Check if today is a market holiday
+	const formattedDate = date.toISOString().split('T')[0] // Get the date in "YYYY-MM-DD" format
+	const checkIsHoliday = marketHolidays.some((holiday) => holiday.date === formattedDate)
+	return checkIsHoliday
+}
 
-  function isStockMarketOpen(date: Date) {
-    // Check if it's a weekend (Saturday or Sunday)
-    const dayOfWeek = date.getDay()
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return false
-    }
+function isStockMarketOpen(date: Date) {
+	// Check if it's a weekend (Saturday or Sunday)
+	const dayOfWeek = date.getDay()
+	if (dayOfWeek === 0 || dayOfWeek === 6) {
+		return false
+	}
 
-    // Check if the time is within typical trading hours (9:30 AM - 4:00 PM)
-    const hours = date.getHours()
-    const minutes = date.getMinutes()
-    const currentTimeInMinutes = hours * 60 + minutes
+	// Check if the time is within typical trading hours (9:30 AM - 4:00 PM)
+	const hours = date.getHours()
+	const minutes = date.getMinutes()
+	const currentTimeInMinutes = hours * 60 + minutes
 
-    const marketOpenTimeInMinutes = 9 * 60 + 30 // 9:30 AM
-    const marketCloseTimeInMinutes = 16 * 60 // 4:00 PM
+	const marketOpenTimeInMinutes = 9 * 60 + 30 // 9:30 AM
+	const marketCloseTimeInMinutes = 16 * 60 // 4:00 PM
 
-    return currentTimeInMinutes >= marketOpenTimeInMinutes && currentTimeInMinutes <= marketCloseTimeInMinutes
-  }
+	return (
+		currentTimeInMinutes >= marketOpenTimeInMinutes &&
+		currentTimeInMinutes <= marketCloseTimeInMinutes
+	)
+}
 
-  let search = ''
-  let searchData = mockSearch.results.map(dataProcessing.formatIexCloud)
+let search = ''
+let searchData = mockSearch.results.map(dataProcessing.formatIexCloud)
 
-  async function pollSearch() {
-    const data = await api.search(search)
-    searchData = data
-  }
+async function pollSearch() {
+	const data = await api.search(search)
+	searchData = data
+}
 
-  const onSearch = debounce(pollSearch, 3_000)
+const onSearch = debounce(pollSearch, 3_000)
 
-  let loading = false
-  async function update() {
-    loading = true
-    if (isHoliday) {
-      return
-    }
-    const data = await api.update(tickers)
-    if (!isHoliday) {
-      isMarketOpen = isStockMarketOpen(new Date())
-    }
-    updateData = data
-    loading = false
-  }
+let loading = false
+async function update() {
+	loading = true
+	if (isHoliday) {
+		return
+	}
+	const data = await api.update(tickers)
+	if (!isHoliday) {
+		isMarketOpen = isStockMarketOpen(new Date())
+	}
+	updateData = data
+	loading = false
+}
 
-  useInterval(update, 60_000)
+useInterval(update, 60_000)
 
-  let tickers = db.tickers
-  let updateData = mockUpdate.map(dataProcessing.formatIexCloud)
+let tickers = db.tickers
+let updateData = mockUpdate.map(dataProcessing.formatIexCloud)
 
-  const onUpdate = debounce(update, 3000)
+const onUpdate = debounce(update, 3000)
 
-  let selectedItem = {}
+let selectedItem = {}
 
-  export async function addTicker() {
-    await addToPortfolio(selectedItem)
-    selectedItem = {}
-  }
+export async function addTicker() {
+	await addToPortfolio(selectedItem)
+	selectedItem = {}
+}
 
-  let portfolio = 'main'
+let portfolio = 'main'
 
-  let checkedAlphaVantage = false
-  let checkedPolygon = false
-  let checkedIexCloud = false
+let checkedAlphaVantage = false
+let checkedPolygon = false
+let checkedIexCloud = false
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-2 rounded-3xl shadow-3xl m-0 gap-2">
