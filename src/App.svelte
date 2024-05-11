@@ -164,12 +164,17 @@
     loading = false
   }
 
-  useInterval(update, 60_000)
+  let interval = $state(600_000)
+  $effect(() => {
+    useInterval(update, interval)
+  })
 
-  let tickers = $derived(db.tickers)
+  let tickers = db.tickers
   let updateData = $state(mockUpdate.map(dataProcessing.formatIexCloud))
 
-  const onUpdate = debounce(update, 3000)
+  function onUpdate() {
+    debounce(update, 10_000)
+  }
 
   let selectedItem = $state({})
 
@@ -180,9 +185,9 @@
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-2 rounded-3xl shadow-3xl m-0 gap-2">
-  <!-- <header>
-    <HeadingH1>Libre Stonks</HeadingH1>
-  </header> -->
+  <header>
+    <!-- <HeadingH1>Libre Stonks</HeadingH1> -->
+  </header>
 
   <Tabs.Root bind:value={tab} class="w-full h-screen">
     <Tabs.List class="grid w-full grid-cols-3">

@@ -1,5 +1,6 @@
 import * as config from '$lib/config'
 import * as dataProcessing from '$lib/data-processing'
+import * as errors from '$lib/errors'
 import type { TickerDataType } from '$lib/types'
 import { fetch } from '@tauri-apps/plugin-http'
 
@@ -16,12 +17,7 @@ export async function search(keywords: string) {
 		const data = json?.results.map(dataProcessing.formatPolygon)
 		return data
 	} catch (error) {
-		if (error instanceof SyntaxError) {
-			// Unexpected token < in JSON
-			console.log('There was a SyntaxError', error)
-		} else {
-			console.log('There was an error', error)
-		}
+		errors.handleEndpointError(error)
 	}
 }
 
@@ -33,15 +29,10 @@ export async function getSymbol(ticker: string) {
 			throw Error('Response failed')
 		}
 		const json = await response.json()
-		const data = json?.results.map(dataProcessing.formatPolygon)
+		const data = json?.results.map(dataProcessing.formatTwelveData)
 		return data
 	} catch (error) {
-		if (error instanceof SyntaxError) {
-			// Unexpected token < in JSON
-			console.log('There was a SyntaxError', error)
-		} else {
-			console.log('There was an error', error)
-		}
+		errors.handleEndpointError(error)
 	}
 }
 
@@ -61,22 +52,18 @@ type Interval =
 export async function update(tickers: TickerDataType[], interval: Interval = '1min') {
 	try {
 		const tickerList = dataProcessing.getTickerList(tickers)
-		const apiUrl = `${ENDPOINT}/quote/${tickerList}?token=${config.API_KEY_TWELVE_DATA}`
-		const apiUrl2 = `${ENDPOINT}/time_series?apikey=${config.API_KEY_TWELVE_DATA}&interval=${interval}&symbol=${tickerList}`
+		const apiUrl = `${ENDPOINT}/time_series?apikey=${config.API_KEY_TWELVE_DATA}&interval=${interval}&symbol=${tickerList}`
 		const response = await fetch(apiUrl, { method: 'GET' })
+		console.log('🚀 ~ update ~ response:', response)
 		if (!response.ok) {
 			throw Error('Response failed')
 		}
 		const json = await response.json()
-		const data = json.map(dataProcessing.formatIexCloud)
+		console.log('🚀 ~ update ~ json:', json)
+		const data = json.map(dataProcessing.formatTwelveData)
 		return data
 	} catch (error) {
-		if (error instanceof SyntaxError) {
-			// Unexpected token < in JSON
-			console.log('There was a SyntaxError', error)
-		} else {
-			console.log('There was an error', error)
-		}
+		errors.handleEndpointError(error)
 		return []
 	}
 }

@@ -49,6 +49,19 @@ export function formatIexCloud(data: any) {
 	}
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function formatTwelveData(data: any) {
+	const { meta } = data
+	return {
+		...data,
+		ticker: meta.symbol,
+		name: meta.symbol,
+		// for search
+		value: `${meta.symbol} ${meta.symbol}`,
+		label: meta.symbol,
+	}
+}
+
 export function getTickerList(tickers: TickerDataType[]) {
 	return tickers.map((item) => item.ticker_name).join(',')
 }
