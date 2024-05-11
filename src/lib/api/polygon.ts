@@ -1,5 +1,6 @@
 import * as config from '$lib/config'
 import * as dataProcessing from '$lib/data-processing'
+import * as errors from '$lib/errors'
 import type { TickerDataType } from '$lib/types'
 import { fetch } from '@tauri-apps/plugin-http'
 
@@ -16,12 +17,7 @@ export async function search(keywords: string) {
 		const data = json?.results.map(dataProcessing.formatPolygon) ?? []
 		return data
 	} catch (error) {
-		if (error instanceof SyntaxError) {
-			// Unexpected token < in JSON
-			console.log('There was a SyntaxError', error)
-		} else {
-			console.log('There was an error', error)
-		}
+		errors.handleEndpointError(error)
 	}
 }
 
@@ -36,12 +32,7 @@ export async function getSymbol(ticker: string) {
 		const data = json?.results.map(dataProcessing.formatPolygon) ?? []
 		return data
 	} catch (error) {
-		if (error instanceof SyntaxError) {
-			// Unexpected token < in JSON
-			console.log('There was a SyntaxError', error)
-		} else {
-			console.log('There was an error', error)
-		}
+		errors.handleEndpointError(error)
 	}
 }
 
@@ -57,11 +48,6 @@ export async function update(tickers: TickerDataType[]) {
 		const data = json?.results.map(dataProcessing.formatPolygon) ?? []
 		return data
 	} catch (error) {
-		if (error instanceof SyntaxError) {
-			// Unexpected token < in JSON
-			console.log('There was a SyntaxError', error)
-		} else {
-			console.log('There was an error', error)
-		}
+		errors.handleEndpointError(error)
 	}
 }
