@@ -30,3 +30,12 @@
     - [x] Store encrypted keys using "stronghold" plugin.
   - [x] Toggle api keys visibility.
   - [ ] Implement API for Alpha Vantage.
+
+
+- Update tauri deps:
+
+```shell
+ni @tauri-apps/api@next @tauri-apps/cli@next
+
+ni @tauri-apps/plugin-fs@latest @tauri-apps/plugin-http@latest @tauri-apps/plugin-notification@latest @tauri-apps/plugin-shell@latest @tauri-apps/plugin-sql@latest @tauri-apps/plugin-store@latest @tauri-apps/plugin-stronghold@latest @tauri-apps/plugin-websocket@latest @tauri-apps/plugin-window-state@latest
+```

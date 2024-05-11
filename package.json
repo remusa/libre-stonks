@@ -13,12 +13,14 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"tauri": "tauri",
 		"deps": "nlx taze -Iwi",
+		"deps:safe": "nr deps && git commit -a -m \"chore(deps): update all non-major dependencies\"",
 		"sort": "nlx sort-package-json",
 		"fix": "nlx @biomejs/biome check --apply-unsafe ./src",
 		"format": "nlx @biomejs/biome format ./src --write",
 		"lint": "nlx @biomejs/biome lint ./src ",
 		"postinstall": "lefthook install",
-		"clean": "nlx rimraf node_modules/ dist/ build/ src-tauri/target/",
+		"clean:frontend": "nlx rimraf node_modules/ dist/ build/",
+		"clean:cargo": "cd ./src-tauri/ && cargo clean",
 		"commitlint": "npx commitlint --edit '$1'"
 	},
 	"dependencies": {
@@ -65,7 +67,7 @@
 		"tailwindcss": "^3.4.3",
 		"tslib": "^2.6.2",
 		"typescript": "^5.4.5",
-		"vite": "^5.0.11"
+		"vite": "^5.1.7"
 	},
 	"volta": {
 		"node": "22.1.0"
