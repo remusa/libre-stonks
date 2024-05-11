@@ -21,14 +21,13 @@
   import { openConfigDir } from '$lib/file-system'
   import notify from '$lib/notifications'
   import { addToPortfolio } from '$lib/portfolio'
+  import * as stockMarket from '$lib/stock-market'
   import * as stores from '$lib/stores/stores'
   import { useInterval } from '$lib/use-interval'
   import { cn } from '$lib/utils'
   import { getCurrent } from '@tauri-apps/api/window'
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
-  import { onMount } from 'svelte'
-  import marketHolidays from './data/market-holidays.json'
   import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
   import mockUpdate from './mock/get-data-iex-cloud.json'
   import mockSearch from './mock/search-polygon.json'
@@ -84,26 +83,29 @@
     localStorage.setItem('use-native-notifications', useNativeNotifications.toString())
   }
 
+  type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud' | ''
+  let apiEndpoint: APIEndpoint = $state('')
+  let api = $state(apiIexCloud)
+
   let apiKeyAlphaVantage = $state('')
   let apiKeyPolygon = $state('')
   let apiKeyIEXCloud = $state('')
-  onMount(async () => {
-    apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
-    apiKeyPolygon = config.API_KEY_POLYGON as string
-    apiKeyIEXCloud = config.API_KEY_IEX_CLOUD as string
+
+  $effect(() => {
+    ;(async () => {
+      apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
+      apiKeyPolygon = config.API_KEY_POLYGON as string
+      apiKeyIEXCloud = config.API_KEY_IEX_CLOUD as string
+      apiEndpoint = config.API_ENDPOINT as APIEndpoint
+    })()
   })
+
   $effect(() => {
     stores.setValue(stores.settingsStore, 'api-key-alpha-vantage', apiKeyAlphaVantage)
     stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
     stores.setValue(stores.settingsStore, 'api-key-iex-cloud', apiKeyIEXCloud)
   })
 
-  type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud' | ''
-  let apiEndpoint: APIEndpoint = $state('')
-  let api = $state(apiIexCloud)
-  onMount(async () => {
-    apiEndpoint = config.API_ENDPOINT as APIEndpoint
-  })
   $effect(() => {
     switch (apiEndpoint) {
       case 'alpha-vantage':
@@ -120,33 +122,8 @@
   })
 
   const currentDate = new Date()
-  const isHoliday = isStockMarketHoliday(currentDate)
-  let isMarketOpen = $state(isStockMarketOpen(currentDate))
-
-  function isStockMarketHoliday(date: Date) {
-    // Check if today is a market holiday
-    const formattedDate = date.toISOString().split('T')[0] // Get the date in "YYYY-MM-DD" format
-    const checkIsHoliday = marketHolidays.some(holiday => holiday.date === formattedDate)
-    return checkIsHoliday
-  }
-
-  function isStockMarketOpen(date: Date) {
-    // Check if it's a weekend (Saturday or Sunday)
-    const dayOfWeek = date.getDay()
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return false
-    }
-
-    // Check if the time is within typical trading hours (9:30 AM - 4:00 PM)
-    const hours = date.getHours()
-    const minutes = date.getMinutes()
-    const currentTimeInMinutes = hours * 60 + minutes
-
-    const marketOpenTimeInMinutes = 9 * 60 + 30 // 9:30 AM
-    const marketCloseTimeInMinutes = 16 * 60 // 4:00 PM
-
-    return currentTimeInMinutes >= marketOpenTimeInMinutes && currentTimeInMinutes <= marketCloseTimeInMinutes
-  }
+  const isHoliday = stockMarket.isStockMarketHoliday(currentDate)
+  let isMarketOpen = $state(stockMarket.isStockMarketOpen(currentDate))
 
   let search = $state('')
   let searchData = $state(mockSearch.results.map(dataProcessing.formatIexCloud))
@@ -158,7 +135,7 @@
 
   const onSearch = debounce(pollSearch, 3_000)
 
-  let loading = false
+  let loading = $state(false)
   async function update() {
     loading = true
     if (isHoliday) {
@@ -166,7 +143,7 @@
     }
     const data = await api.update(tickers)
     if (!isHoliday) {
-      isMarketOpen = isStockMarketOpen(new Date())
+      isMarketOpen = stockMarket.isStockMarketOpen(new Date())
     }
     updateData = data
     loading = false
