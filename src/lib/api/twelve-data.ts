@@ -54,13 +54,15 @@ export async function update(tickers: TickerDataType[], interval: Interval = '1m
 		const tickerList = dataProcessing.getTickerList(tickers)
 		const apiUrl = `${ENDPOINT}/time_series?apikey=${config.API_KEY_TWELVE_DATA}&interval=${interval}&symbol=${tickerList}`
 		const response = await fetch(apiUrl, { method: 'GET' })
-		console.log('🚀 ~ update ~ response:', response)
 		if (!response.ok) {
 			throw Error('Response failed')
 		}
 		const json = await response.json()
-		console.log('🚀 ~ update ~ json:', json)
-		const data = json.map(dataProcessing.formatTwelveData)
+		const data = Object.values(json)
+			.filter((ticker) => {
+				return !ticker?.code || ticker?.code !== 403
+			})
+			.map(dataProcessing.formatTwelveData)
 		return data
 	} catch (error) {
 		errors.handleEndpointError(error)

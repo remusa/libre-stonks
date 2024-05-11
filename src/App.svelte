@@ -148,7 +148,9 @@
     searchData = data
   }
 
-  const onSearch = debounce(pollSearch, 3_000)
+  function onSearch() {
+    debounce(pollSearch, 3_000)
+  }
 
   let loading = $state(false)
   async function update() {
@@ -157,6 +159,7 @@
       return
     }
     const data = await api.update(tickers)
+    console.log('🚀 ~ update ~ data:', data)
     if (!isHoliday) {
       isMarketOpen = stockMarket.isStockMarketOpen(new Date())
     }
@@ -164,7 +167,7 @@
     loading = false
   }
 
-  let interval = $state(600_000)
+  let interval = $state(60_000)
   $effect(() => {
     useInterval(update, interval)
   })
