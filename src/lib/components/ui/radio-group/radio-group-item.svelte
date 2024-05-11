@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { RadioGroup as RadioGroupPrimitive } from "bits-ui";
-	import { Circle } from "lucide-svelte";
-	import { cn } from "$lib/utils";
+import { RadioGroup as RadioGroupPrimitive } from 'bits-ui'
+import { Circle } from 'lucide-svelte'
+import { cn } from '$lib/utils'
 
-	type $$Props = RadioGroupPrimitive.ItemProps;
-	type $$Events = RadioGroupPrimitive.ItemEvents;
+type $$Props = RadioGroupPrimitive.ItemProps
+type $$Events = RadioGroupPrimitive.ItemEvents
 
-	let className: $$Props["class"] = undefined;
-	export let value: $$Props["value"];
-	export { className as class };
+let className: $$Props['class'] = undefined
+export let value: $$Props['value']
+export { className as class }
 </script>
 
 <RadioGroupPrimitive.Item

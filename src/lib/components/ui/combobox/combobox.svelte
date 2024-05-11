@@ -1,34 +1,34 @@
 <script lang="ts">
-  import { Button } from '$lib/components/ui/button'
-  import * as Command from '$lib/components/ui/command'
-  import * as Popover from '$lib/components/ui/popover'
-  import { cn } from '$lib/utils'
-  import { Check, ChevronsUpDown } from 'lucide-svelte'
-  import { tick } from 'svelte'
+import { Button } from '$lib/components/ui/button'
+import * as Command from '$lib/components/ui/command'
+import * as Popover from '$lib/components/ui/popover'
+import { cn } from '$lib/utils'
+import { Check, ChevronsUpDown } from 'lucide-svelte'
+import { tick } from 'svelte'
 
-  type DataItem = {
-    value?: string
-    label?: string
-  }
+type DataItem = {
+	value?: string
+	label?: string
+}
 
-  export let data: DataItem[] = []
+export let data: DataItem[] = []
 
-  let open = false
-  let value = ''
+let open = false
+let value = ''
 
-  export let selectedItem: DataItem = {}
-  $: selectedItem = data?.find(f => f.value === value) as DataItem
-  $: selectedValue = selectedItem?.label ?? 'Select a value...'
+export let selectedItem: DataItem = {}
+$: selectedItem = data?.find((f) => f.value === value) as DataItem
+$: selectedValue = selectedItem?.label ?? 'Select a value...'
 
-  // We want to refocus the trigger button when the user selects
-  // an item from the list so users can continue navigating the
-  // rest of the form with the keyboard.
-  function closeAndFocusTrigger(triggerId: string) {
-    open = false
-    tick().then(() => {
-      document.getElementById(triggerId)?.focus()
-    })
-  }
+// We want to refocus the trigger button when the user selects
+// an item from the list so users can continue navigating the
+// rest of the form with the keyboard.
+function closeAndFocusTrigger(triggerId: string) {
+	open = false
+	tick().then(() => {
+		document.getElementById(triggerId)?.focus()
+	})
+}
 </script>
 
 <Popover.Root bind:open let:ids>

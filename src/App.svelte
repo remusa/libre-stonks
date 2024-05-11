@@ -59,23 +59,23 @@
 
   let portfolio = 'main'
 
-  let checkedAlphaVantage = false
-  let checkedPolygon = false
-  let checkedIexCloud = false
+  let checkedAlphaVantage = $state(false)
+  let checkedPolygon = $state(false)
+  let checkedIexCloud = $state(false)
 
   type TabsT = 'home' | 'search' | 'settings'
-  let tab: TabsT = (localStorage.getItem('tab') as TabsT) ?? 'home'
-  $: {
+  let tab: TabsT = $state((localStorage.getItem('tab') as TabsT) ?? 'home')
+  $effect(() => {
     localStorage.setItem('tab', tab)
     checkedAlphaVantage = checkedPolygon = checkedIexCloud = false
-  }
+  })
 
-  let alwaysOnTop = localStorage.getItem('always-on-top') === 'true' || true
-  let useNativeNotifications = localStorage.getItem('use-native-notifications') === 'true' || true
-  $: {
+  let alwaysOnTop = $state(localStorage.getItem('always-on-top') === 'true' || true)
+  let useNativeNotifications = $state(localStorage.getItem('use-native-notifications') === 'true' || true)
+  $effect(() => {
     changeAlwaysOnTop(alwaysOnTop)
     changeNativeNotifications(useNativeNotifications)
-  }
+  })
   async function changeAlwaysOnTop(value: boolean) {
     await appWindow.setAlwaysOnTop(value)
     localStorage.setItem('always-on-top', alwaysOnTop.toString())
@@ -84,27 +84,27 @@
     localStorage.setItem('use-native-notifications', useNativeNotifications.toString())
   }
 
-  let apiKeyAlphaVantage: string
-  let apiKeyPolygon: string
-  let apiKeyIEXCloud: string
+  let apiKeyAlphaVantage = $state('')
+  let apiKeyPolygon = $state('')
+  let apiKeyIEXCloud = $state('')
   onMount(async () => {
     apiKeyAlphaVantage = config.API_KEY_ALPHA_VANTAGE as string
     apiKeyPolygon = config.API_KEY_POLYGON as string
     apiKeyIEXCloud = config.API_KEY_IEX_CLOUD as string
   })
-  $: {
+  $effect(() => {
     stores.setValue(stores.settingsStore, 'api-key-alpha-vantage', apiKeyAlphaVantage)
     stores.setValue(stores.settingsStore, 'api-key-polygon', apiKeyPolygon)
     stores.setValue(stores.settingsStore, 'api-key-iex-cloud', apiKeyIEXCloud)
-  }
+  })
 
-  type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud'
-  let apiEndpoint: APIEndpoint
-  let api = apiIexCloud
+  type APIEndpoint = 'alpha-vantage' | 'polygon' | 'iex-cloud' | ''
+  let apiEndpoint: APIEndpoint = $state('')
+  let api = $state(apiIexCloud)
   onMount(async () => {
     apiEndpoint = config.API_ENDPOINT as APIEndpoint
   })
-  $: {
+  $effect(() => {
     switch (apiEndpoint) {
       case 'alpha-vantage':
         api = apiAlphaVantage
@@ -117,11 +117,11 @@
         break
     }
     stores.setValue(stores.settingsStore, 'api-endpoint', apiEndpoint)
-  }
+  })
 
   const currentDate = new Date()
   const isHoliday = isStockMarketHoliday(currentDate)
-  let isMarketOpen = isStockMarketOpen(currentDate)
+  let isMarketOpen = $state(isStockMarketOpen(currentDate))
 
   function isStockMarketHoliday(date: Date) {
     // Check if today is a market holiday
@@ -148,8 +148,8 @@
     return currentTimeInMinutes >= marketOpenTimeInMinutes && currentTimeInMinutes <= marketCloseTimeInMinutes
   }
 
-  let search = ''
-  let searchData = mockSearch.results.map(dataProcessing.formatIexCloud)
+  let search = $state('')
+  let searchData = $state(mockSearch.results.map(dataProcessing.formatIexCloud))
 
   async function pollSearch() {
     const data = await api.search(search)
@@ -174,12 +174,12 @@
 
   useInterval(update, 60_000)
 
-  let tickers = db.tickers
-  let updateData = mockUpdate.map(dataProcessing.formatIexCloud)
+  let tickers = $derived(db.tickers)
+  let updateData = $state(mockUpdate.map(dataProcessing.formatIexCloud))
 
   const onUpdate = debounce(update, 3000)
 
-  let selectedItem = {}
+  let selectedItem = $state({})
 
   export async function addTicker() {
     await addToPortfolio(selectedItem)
