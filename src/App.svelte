@@ -40,25 +40,31 @@
   function getChangeType(price: number): Price {
     if (price < 0) {
       return 'decrement'
-    } else if (price > 0) {
-      return 'increment'
-    } else {
-      return 'no-change'
     }
+    if (price > 0) {
+      return 'increment'
+    }
+    return 'no-change'
   }
 
   function getBadgeVariant(changeType: Price) {
     if (changeType === 'increment') {
       return 'default'
-    } else if (changeType === 'decrement') {
-      return 'destructive'
-    } else {
-      return 'outline'
     }
+    if (changeType === 'decrement') {
+      return 'destructive'
+    }
+    return 'outline'
   }
 
-  type Tabs = 'home' | 'search' | 'settings'
-  let tab: Tabs = (localStorage.getItem('tab') as Tabs) ?? 'home'
+  let portfolio = 'main'
+
+  let checkedAlphaVantage = false
+  let checkedPolygon = false
+  let checkedIexCloud = false
+
+  type TabsT = 'home' | 'search' | 'settings'
+  let tab: TabsT = (localStorage.getItem('tab') as TabsT) ?? 'home'
   $: {
     localStorage.setItem('tab', tab)
     checkedAlphaVantage = checkedPolygon = checkedIexCloud = false
@@ -114,7 +120,7 @@
   }
 
   const currentDate = new Date()
-  let isHoliday = isStockMarketHoliday(currentDate)
+  const isHoliday = isStockMarketHoliday(currentDate)
   let isMarketOpen = isStockMarketOpen(currentDate)
 
   function isStockMarketHoliday(date: Date) {
@@ -179,12 +185,6 @@
     await addToPortfolio(selectedItem)
     selectedItem = {}
   }
-
-  let portfolio = 'main'
-
-  let checkedAlphaVantage = false
-  let checkedPolygon = false
-  let checkedIexCloud = false
 </script>
 
 <main class="flex flex-col items-center justify-start w-screen h-screen p-2 rounded-3xl shadow-3xl m-0 gap-2">
