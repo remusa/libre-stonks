@@ -22,7 +22,8 @@ fn main() {
                 .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
 
             #[cfg(any(windows, target_os = "macos"))]
-            set_shadow(&window, true).unwrap();
+            window.set_shadow(true).unwrap();
+            // set_shadow(&window, true).unwrap();
 
             Ok(())
         })
