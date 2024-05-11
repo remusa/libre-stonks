@@ -45,6 +45,4 @@ export async function getSymbol(ticker: string) {
 	}
 }
 
-export async function update(tickers: TickerDataType[]) {
-	console.log('🚀 ~ update ~ tickers:', tickers)
-}
+export async function update(tickers: TickerDataType[]) {}

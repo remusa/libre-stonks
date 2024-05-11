@@ -66,7 +66,6 @@ export async function update(tickers: TickerDataType[]) {
 // 		}
 
 // 		const holidays = await response.json()
-// 		console.log('Market Holidays:', holidays)
 // 		return holidays
 // 	} catch (error) {
 // 		console.error('Error fetching market holidays:', error.message)

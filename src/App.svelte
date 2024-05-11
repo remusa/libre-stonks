@@ -30,7 +30,7 @@
   import debounce from 'just-debounce-it'
   import { Eye, EyeOff } from 'lucide-svelte'
   import HeadingH3 from './lib/components/ui/typography/heading-h3.svelte'
-  import mockUpdate from './mock/get-data-iex-cloud.json'
+  import mockUpdate from './mock/get-data-twelve-data.json'
   import mockSearch from './mock/search-polygon.json'
 
   const appWindow = getCurrent()
@@ -153,30 +153,32 @@
   }
 
   let loading = $state(false)
-  async function update() {
+  let interval = $state(60_000)
+  let tickers = db.tickers
+  let updatedData = $state(mockUpdate.map(dataProcessing.formatTwelveData))
+  $inspect(updatedData)
+
+  async function fetchTickersData() {
     loading = true
     if (isHoliday) {
       return
     }
     const data = await api.update(tickers)
-    console.log('🚀 ~ update ~ data:', data)
+    console.log('🚀 ~ fetchTickersData ~ data:', data)
     if (!isHoliday) {
       isMarketOpen = stockMarket.isStockMarketOpen(new Date())
     }
-    updateData = data
+    // updatedData = data
     loading = false
   }
 
-  let interval = $state(60_000)
   $effect(() => {
-    useInterval(update, interval)
+    // useInterval(fetchTickersData, interval)
   })
 
-  let tickers = db.tickers
-  let updateData = $state(mockUpdate.map(dataProcessing.formatIexCloud))
-
   function onUpdate() {
-    debounce(update, 10_000)
+    fetchTickersData()
+    // debounce(fetchTickersData, 3_000)
   }
 
   let selectedItem = $state({})
@@ -215,13 +217,16 @@
             </span>
           </Card.Description>
         </Card.Header>
+
         <Card.Content class="space-y-2">
           <div class="w-full flex flex-col gap-2 items-center">
             <Small>Portfolio: {portfolio}</Small>
 
             <ul class="flex w-full flex-col gap-2 divide-y-2 divide-grey-900 divide-dashed">
-              {#each updateData as item}
-                {@const price = item.latestPrice}
+              <!-- <pre>{JSON.stringify(updatedData)?.at(1)}</pre> -->
+
+              {#each updatedData as item}
+                {@const price = item?.values?.at(-1)?.close ?? '0'}
                 {@const changeType = getChangeType(price)}
                 {@const badgeVariant = getBadgeVariant(changeType)}
 
@@ -267,8 +272,9 @@
             </ul>
           </div>
         </Card.Content>
+
         <Card.Footer>
-          <Button variant="default" on:click={onUpdate}>Update</Button>
+          <Button variant="default" onclick={onUpdate}>Update</Button>
         </Card.Footer>
       </Card.Root>
     </Tabs.Content>
@@ -284,12 +290,12 @@
             <Label for="search">Search</Label>
             <div class="flex justify-between gap-2">
               <Input id="search" bind:value={search} />
-              <Button on:click={onSearch}>Search</Button>
+              <Button onclick={onSearch}>Search</Button>
             </div>
           </div>
           <div class="flex justify-between items-center gap-0">
             <Combobox data={searchData} bind:selectedItem />
-            <Button on:click={addToPortfolio}>Add</Button>
+            <Button onclick={addToPortfolio}>Add</Button>
           </div>
         </Card.Content>
         <Card.Footer></Card.Footer>
@@ -483,8 +489,8 @@
 
         <Card.Footer>
           <div class="flex items-center justify-center space-x-2">
-            <Button variant="outline" on:click={openConfigDir}>Config</Button>
-            <Button variant="outline" on:click={() => notify('Notification', 'Test notification')}
+            <Button variant="outline" onclick={openConfigDir}>Config</Button>
+            <Button variant="outline" onclick={() => notify('Notification', 'Test notification')}
               >Send test notification</Button>
           </div>
         </Card.Footer>
